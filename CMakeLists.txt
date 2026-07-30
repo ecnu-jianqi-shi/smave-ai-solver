@@ -65,6 +65,28 @@ add_library(smave_core
     src/benchmark/sparse_suite.cpp
     src/benchmark/suite_manifest.cpp
 )
+if(DEFINED SMAVE_CUDA_TOOLKIT_ROOT)
+    enable_language(CUDA)
+    add_executable(smave_cuda_device_evidence tests/cuda_device_evidence.cpp)
+    target_link_libraries(smave_cuda_device_evidence PRIVATE smave_core)
+    set(SMAVE_CUDA_INCLUDE "${SMAVE_CUDA_TOOLKIT_ROOT}/include")
+    set(SMAVE_CUDA_LIB "${SMAVE_CUDA_TOOLKIT_ROOT}/lib64")
+    add_library(smave_cuda_cudart SHARED IMPORTED)
+    set_target_properties(smave_cuda_cudart PROPERTIES
+        IMPORTED_LOCATION "${SMAVE_CUDA_LIB}/libcudart.so"
+        INTERFACE_INCLUDE_DIRECTORIES "${SMAVE_CUDA_INCLUDE}")
+    add_library(smave_cuda_kernels STATIC src/device_cuda.cu)
+    set_property(TARGET smave_core PROPERTY CUDA_ARCHITECTURES native)
+    set_target_properties(smave_cuda_kernels PROPERTIES
+        CUDA_ARCHITECTURES native
+        POSITION_INDEPENDENT_CODE ON)
+    target_include_directories(smave_cuda_kernels PRIVATE "${SMAVE_CUDA_INCLUDE}")
+    target_link_libraries(smave_cuda_kernels PRIVATE smave_cuda_cudart)
+    target_sources(smave_core PRIVATE $<TARGET_OBJECTS:smave_cuda_kernels>)
+    target_link_libraries(smave_core PRIVATE smave_cuda_cudart)
+    target_include_directories(smave_core PRIVATE "${SMAVE_CUDA_INCLUDE}")
+    target_compile_definitions(smave_core PRIVATE SMAVE_HAVE_CUDA_RUNTIME=1)
+endif()
 set_target_properties(smave_core PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_include_directories(smave_core PUBLIC include)
 target_link_libraries(smave_core PRIVATE ZLIB::ZLIB Threads::Threads ${CMAKE_DL_LIBS})

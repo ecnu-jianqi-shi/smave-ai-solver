@@ -184,4 +184,31 @@ accelerate_periodic_helmholtz_2d_batch(
     std::size_t width,
     double diffusion_number);
 
+[[nodiscard]] bool cuda_gpu_available();
+
+[[nodiscard]] std::string cuda_gpu_device_name();
+
+[[nodiscard]] DeviceExecutionResult cuda_gpu_affine_batch(
+    const std::vector<float>& inputs,
+    std::size_t batch,
+    std::size_t input_width,
+    const std::vector<float>& weights,
+    std::size_t output_width,
+    const std::vector<float>& bias,
+    double absolute_tolerance = 1.0e-5,
+    double relative_tolerance = 1.0e-5);
+
+[[nodiscard]] MetalStencilSolveResult cuda_weighted_jacobi_2d_batch(
+    const std::vector<double>& west,
+    const std::vector<double>& east,
+    const std::vector<double>& south,
+    const std::vector<double>& north,
+    const std::vector<double>& inverse_diagonal,
+    const std::vector<double>& right_hand_sides,
+    std::size_t batch,
+    std::size_t width,
+    std::size_t iterations,
+    double relaxation,
+    double residual_tolerance = 1.0e-6);
+
 }  // namespace smave

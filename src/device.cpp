@@ -27,6 +27,39 @@
 #include <objc/runtime.h>
 #endif
 
+#if defined(SMAVE_HAVE_CUDA_RUNTIME)
+#include <cuda_runtime.h>
+
+namespace smave {
+void cuda_launch_affine(
+    const float* inputs,
+    const float* weights,
+    const float* bias,
+    float* outputs,
+    unsigned int total_threads,
+    unsigned int input_width,
+    unsigned int output_width,
+    unsigned int grid_size,
+    unsigned int block_size);
+
+void cuda_launch_weighted_jacobi_2d(
+    const float* west,
+    const float* east,
+    const float* south,
+    const float* north,
+    const float* inverse_diagonal,
+    const float* right,
+    float* current,
+    float* next,
+    float* output,
+    unsigned int width,
+    unsigned int iterations,
+    float relaxation,
+    unsigned int batch_size,
+    unsigned int block_size);
+}  // namespace smave
+#endif
+
 namespace smave {
 namespace {
 
@@ -2359,4 +2392,404 @@ bool AcceleratePeriodicHelmholtz2DPlan::solve_batch(
 #endif
 }
 
+#if defined(SMAVE_HAVE_CUDA_RUNTIME)
+
+namespace {
+
+struct CudaRuntime {
+    bool available{false};
+    std::string device_name;
+    std::string error;
+
+    CudaRuntime() {
+        int device_count = 0;
+        const auto status = cudaGetDeviceCount(&device_count);
+        if (status != cudaSuccess || device_count == 0) {
+            error = "no CUDA device found";
+            return;
+        }
+        cudaDeviceProp properties{};
+        if (cudaGetDeviceProperties(&properties, 0) != cudaSuccess) {
+            error = "cudaGetDeviceProperties failed";
+            return;
+        }
+        device_name = properties.name;
+        available = true;
+    }
+};
+
+CudaRuntime& cuda_runtime() {
+    static CudaRuntime runtime;
+    return runtime;
+}
+
+}  // namespace
+
+bool cuda_gpu_available() {
+    return cuda_runtime().available;
+}
+
+std::string cuda_gpu_device_name() {
+    return cuda_runtime().device_name;
+}
+
+DeviceExecutionResult cuda_gpu_affine_batch(
+    const std::vector<float>& inputs,
+    std::size_t batch,
+    std::size_t input_width,
+    const std::vector<float>& weights,
+    std::size_t output_width,
+    const std::vector<float>& bias,
+    double absolute_tolerance,
+    double relative_tolerance) {
+    DeviceExecutionResult result;
+    result.backend = "cuda-affine-batch-gpu-v1";
+    result.batch = batch;
+    result.input_width = input_width;
+    result.output_width = output_width;
+    if (batch == 0 || input_width == 0 || output_width == 0 ||
+        inputs.size() != batch * input_width ||
+        weights.size() != input_width * output_width ||
+        bias.size() != output_width ||
+        !(absolute_tolerance > 0.0) || !std::isfinite(absolute_tolerance) ||
+        !(relative_tolerance > 0.0) || !std::isfinite(relative_tolerance)) {
+        result.reason = "invalid CUDA affine batch shape or numeric contract";
+        return result;
+    }
+    const auto finite = [](const std::vector<float>& values) {
+        return std::all_of(values.begin(), values.end(), [](float value) {
+            return std::isfinite(value);
+        });
+    };
+    if (!finite(inputs) || !finite(weights) || !finite(bias)) {
+        result.reason = "CUDA affine inputs must be finite";
+        return result;
+    }
+    auto& runtime = cuda_runtime();
+    if (!runtime.available) {
+        result.available = false;
+        result.reason = "CUDA runtime unavailable: " + runtime.error;
+        return result;
+    }
+    result.available = true;
+    result.device_name = runtime.device_name;
+
+    float* device_inputs = nullptr;
+    float* device_weights = nullptr;
+    float* device_bias = nullptr;
+    float* device_outputs = nullptr;
+    const auto inputs_bytes = inputs.size() * sizeof(float);
+    const auto weights_bytes = weights.size() * sizeof(float);
+    const auto bias_bytes = bias.size() * sizeof(float);
+    const auto outputs_bytes = batch * output_width * sizeof(float);
+    auto allocate = [&](float** pointer, std::size_t bytes) {
+        return cudaMalloc(reinterpret_cast<void**>(pointer), bytes) == cudaSuccess;
+    };
+    if (!allocate(&device_inputs, inputs_bytes) ||
+        !allocate(&device_weights, weights_bytes) ||
+        !allocate(&device_bias, bias_bytes) ||
+        !allocate(&device_outputs, outputs_bytes)) {
+        result.reason = "CUDA allocation failed";
+        cudaFree(device_inputs); cudaFree(device_weights);
+        cudaFree(device_bias); cudaFree(device_outputs);
+        return result;
+    }
+    const auto upload_started = Clock::now();
+    auto copy_to = [](float* dst, const float* src, std::size_t bytes) {
+        return cudaMemcpy(dst, src, bytes, cudaMemcpyHostToDevice) == cudaSuccess;
+    };
+    const bool uploads_ok =
+        copy_to(device_inputs, inputs.data(), inputs_bytes) &&
+        copy_to(device_weights, weights.data(), weights_bytes) &&
+        copy_to(device_bias, bias.data(), bias_bytes);
+    result.upload_us = elapsed_us(upload_started);
+    if (!uploads_ok) {
+        result.reason = "CUDA upload memcpy failed";
+        cudaFree(device_inputs); cudaFree(device_weights);
+        cudaFree(device_bias); cudaFree(device_outputs);
+        return result;
+    }
+
+    const auto kernel_started = Clock::now();
+    const unsigned int block_size = 256;
+    const unsigned int grid_size = static_cast<unsigned int>(
+        (batch * output_width + block_size - 1) / block_size);
+    {
+        const auto total_threads = batch * output_width;
+        const auto i_width = input_width;
+        const auto o_width = output_width;
+        const float* in_ptr = device_inputs;
+        const float* w_ptr = device_weights;
+        const float* b_ptr = device_bias;
+        float* out_ptr = device_outputs;
+        cuda_launch_affine(in_ptr, w_ptr, b_ptr, out_ptr,
+                           static_cast<unsigned int>(total_threads),
+                           static_cast<unsigned int>(i_width),
+                           static_cast<unsigned int>(o_width),
+                           grid_size, block_size);
+    }
+    const auto sync_status = cudaDeviceSynchronize();
+    result.kernel_us = elapsed_us(kernel_started);
+    if (sync_status != cudaSuccess) {
+        result.reason = "CUDA affine kernel failed";
+        cudaFree(device_inputs); cudaFree(device_weights);
+        cudaFree(device_bias); cudaFree(device_outputs);
+        return result;
+    }
+    result.executed = true;
+
+    const auto download_started = Clock::now();
+    result.output.resize(batch * output_width);
+    const auto download_ok = cudaMemcpy(result.output.data(), device_outputs,
+        outputs_bytes, cudaMemcpyDeviceToHost) == cudaSuccess;
+    result.download_us = elapsed_us(download_started);
+    cudaFree(device_inputs); cudaFree(device_weights);
+    cudaFree(device_bias); cudaFree(device_outputs);
+    if (!download_ok) {
+        result.reason = "CUDA download memcpy failed";
+        return result;
+    }
+
+    // CPU fp64 reference gate
+    for (std::size_t item = 0; item < batch; ++item) {
+        for (std::size_t row = 0; row < output_width; ++row) {
+            double expected = static_cast<double>(bias[row]);
+            for (std::size_t column = 0; column < input_width; ++column) {
+                expected += static_cast<double>(
+                    weights[row * input_width + column]) *
+                    static_cast<double>(inputs[item * input_width + column]);
+            }
+            const double actual =
+                static_cast<double>(result.output[item * output_width + row]);
+            const double absolute_error = std::abs(actual - expected);
+            const double relative_error =
+                absolute_error / std::max(1.0, std::abs(expected));
+            result.maximum_absolute_error =
+                std::max(result.maximum_absolute_error, absolute_error);
+            result.maximum_relative_error =
+                std::max(result.maximum_relative_error, relative_error);
+        }
+    }
+    result.verified = result.maximum_absolute_error <= absolute_tolerance ||
+        result.maximum_relative_error <= relative_tolerance;
+    result.reason = result.verified
+        ? "CUDA kernel completed and CPU fp64 reference gate passed"
+        : "CUDA kernel completed but CPU fp64 reference gate failed";
+    return result;
+}
+
+MetalStencilSolveResult cuda_weighted_jacobi_2d_batch(
+    const std::vector<double>& west,
+    const std::vector<double>& east,
+    const std::vector<double>& south,
+    const std::vector<double>& north,
+    const std::vector<double>& inverse_diagonal,
+    const std::vector<double>& right_hand_sides,
+    std::size_t batch,
+    std::size_t width,
+    std::size_t iterations,
+    double relaxation,
+    double residual_tolerance) {
+    MetalStencilSolveResult result;
+    result.backend = "cuda-fused-weighted-jacobi-2d-fp32-v1";
+    result.batch = batch;
+    result.width = width;
+    result.iterations = iterations;
+    const auto size = width * width;
+    const auto items = batch * size;
+    if (batch == 0 || width == 0 || iterations == 0 || items == 0 ||
+        west.size() != items || east.size() != items || south.size() != items ||
+        north.size() != items || inverse_diagonal.size() != items ||
+        right_hand_sides.size() != items || !(relaxation > 0.0) ||
+        !(relaxation < 1.0) || !std::isfinite(relaxation) ||
+        !(residual_tolerance > 0.0) || !std::isfinite(residual_tolerance)) {
+        result.reason = "invalid CUDA stencil shape or numeric contract";
+        return result;
+    }
+    const auto finite_input = [](const std::vector<double>& values) {
+        return std::all_of(values.begin(), values.end(), [](double value) {
+            return std::isfinite(value);
+        });
+    };
+    if (!finite_input(west) || !finite_input(east) || !finite_input(south) ||
+        !finite_input(north) || !finite_input(inverse_diagonal) ||
+        !finite_input(right_hand_sides) ||
+        std::any_of(inverse_diagonal.begin(), inverse_diagonal.end(),
+                    [](double value) { return !(value > 0.0); })) {
+        result.reason =
+            "CUDA stencil inputs must be finite with positive diagonal inverse";
+        return result;
+    }
+    auto& runtime = cuda_runtime();
+    if (!runtime.available) {
+        result.available = false;
+        result.reason = "CUDA runtime unavailable: " + runtime.error;
+        return result;
+    }
+    result.available = true;
+    result.device_name = runtime.device_name;
+
+    const auto setup_started = Clock::now();
+    std::vector<float> west_f(west.begin(), west.end());
+    std::vector<float> east_f(east.begin(), east.end());
+    std::vector<float> south_f(south.begin(), south.end());
+    std::vector<float> north_f(north.begin(), north.end());
+    std::vector<float> inverse_diagonal_f(
+        inverse_diagonal.begin(), inverse_diagonal.end());
+    std::vector<float> right_f(right_hand_sides.begin(), right_hand_sides.end());
+    const auto buffer_bytes = items * sizeof(float);
+    float* d_west = nullptr;
+    float* d_east = nullptr;
+    float* d_south = nullptr;
+    float* d_north = nullptr;
+    float* d_inv = nullptr;
+    float* d_right = nullptr;
+    float* d_current = nullptr;
+    float* d_next = nullptr;
+    float* d_output = nullptr;
+    auto alloc = [&](float** ptr) {
+        return cudaMalloc(reinterpret_cast<void**>(ptr), buffer_bytes) ==
+               cudaSuccess;
+    };
+    if (!alloc(&d_west) || !alloc(&d_east) || !alloc(&d_south) ||
+        !alloc(&d_north) || !alloc(&d_inv) || !alloc(&d_right) ||
+        !alloc(&d_current) || !alloc(&d_next) || !alloc(&d_output)) {
+        result.reason = "CUDA stencil allocation failed";
+        cudaFree(d_west); cudaFree(d_east); cudaFree(d_south);
+        cudaFree(d_north); cudaFree(d_inv); cudaFree(d_right);
+        cudaFree(d_current); cudaFree(d_next); cudaFree(d_output);
+        return result;
+    }
+    const auto upload_started = Clock::now();
+    auto copy_to = [&](float* dst, const std::vector<float>& src) {
+        return cudaMemcpy(dst, src.data(), buffer_bytes,
+                          cudaMemcpyHostToDevice) == cudaSuccess;
+    };
+    const bool uploads_ok =
+        copy_to(d_west, west_f) && copy_to(d_east, east_f) &&
+        copy_to(d_south, south_f) && copy_to(d_north, north_f) &&
+        copy_to(d_inv, inverse_diagonal_f) && copy_to(d_right, right_f) &&
+        cudaMemset(d_current, 0, buffer_bytes) == cudaSuccess;
+    const double upload_elapsed = elapsed_us(upload_started);
+    if (!uploads_ok) {
+        result.reason = "CUDA stencil upload failed";
+        cudaFree(d_west); cudaFree(d_east); cudaFree(d_south);
+        cudaFree(d_north); cudaFree(d_inv); cudaFree(d_right);
+        cudaFree(d_current); cudaFree(d_next); cudaFree(d_output);
+        return result;
+    }
+    result.setup_us = elapsed_us(setup_started);
+    (void)upload_elapsed;
+
+    const auto kernel_started = Clock::now();
+    const unsigned int block_size = static_cast<unsigned int>(
+        std::min<std::size_t>(256, size));
+    cuda_launch_weighted_jacobi_2d(
+        d_west, d_east, d_south, d_north, d_inv, d_right,
+        d_current, d_next, d_output,
+        static_cast<unsigned int>(width),
+        static_cast<unsigned int>(iterations),
+        static_cast<float>(relaxation),
+        static_cast<unsigned int>(batch),
+        block_size);
+    const auto sync_status = cudaDeviceSynchronize();
+    result.kernel_us = elapsed_us(kernel_started);
+    if (sync_status != cudaSuccess) {
+        result.reason = "CUDA weighted Jacobi kernel failed";
+        cudaFree(d_west); cudaFree(d_east); cudaFree(d_south);
+        cudaFree(d_north); cudaFree(d_inv); cudaFree(d_right);
+        cudaFree(d_current); cudaFree(d_next); cudaFree(d_output);
+        return result;
+    }
+    result.executed = true;
+
+    const auto download_started = Clock::now();
+    std::vector<float> output_f(items);
+    const auto download_ok = cudaMemcpy(output_f.data(), d_output, buffer_bytes,
+        cudaMemcpyDeviceToHost) == cudaSuccess;
+    result.download_us = elapsed_us(download_started);
+    cudaFree(d_west); cudaFree(d_east); cudaFree(d_south);
+    cudaFree(d_north); cudaFree(d_inv); cudaFree(d_right);
+    cudaFree(d_current); cudaFree(d_next); cudaFree(d_output);
+    if (!download_ok) {
+        result.reason = "CUDA stencil download failed";
+        return result;
+    }
+    result.output.assign(output_f.begin(), output_f.end());
+
+    for (std::size_t batch_index = 0; batch_index < batch; ++batch_index) {
+        double residual_inf{};
+        double right_inf{1.0};
+        const auto base = batch_index * size;
+        for (std::size_t row = 0; row < width; ++row) {
+            for (std::size_t column = 0; column < width; ++column) {
+                const auto index = row * width + column;
+                auto value = result.output[base + index] /
+                    inverse_diagonal[base + index];
+                if (column > 0) value -= west[base + index] *
+                    result.output[base + index - 1];
+                if (column + 1 < width) value -= east[base + index] *
+                    result.output[base + index + 1];
+                if (row > 0) value -= south[base + index] *
+                    result.output[base + index - width];
+                if (row + 1 < width) value -= north[base + index] *
+                    result.output[base + index + width];
+                residual_inf = std::max(residual_inf,
+                    std::abs(right_hand_sides[base + index] - value));
+                right_inf = std::max(right_inf,
+                    std::abs(right_hand_sides[base + index]));
+            }
+        }
+        result.maximum_relative_residual = std::max(
+            result.maximum_relative_residual, residual_inf / right_inf);
+    }
+    result.verified = result.maximum_relative_residual <= residual_tolerance;
+    result.reason = result.verified
+        ? "CUDA fused stencil completed and FP64 original residual gate passed"
+        : "CUDA fused stencil completed but FP64 original residual gate failed";
+    return result;
+}
+
+#endif  // SMAVE_HAVE_CUDA_RUNTIME
+#if !defined(SMAVE_HAVE_CUDA_RUNTIME)
+
+bool cuda_gpu_available() {
+    return false;
+}
+
+std::string cuda_gpu_device_name() {
+    return "";
+}
+
+DeviceExecutionResult cuda_gpu_affine_batch(
+    const std::vector<float>&,
+    std::size_t, std::size_t,
+    const std::vector<float>&,
+    std::size_t,
+    const std::vector<float>&,
+    double, double) {
+    DeviceExecutionResult result;
+    result.backend = "cuda-affine-batch-gpu-v1";
+    result.reason = "CUDA runtime unavailable in this build";
+    return result;
+}
+
+MetalStencilSolveResult cuda_weighted_jacobi_2d_batch(
+    const std::vector<double>&,
+    const std::vector<double>&,
+    const std::vector<double>&,
+    const std::vector<double>&,
+    const std::vector<double>&,
+    const std::vector<double>&,
+    std::size_t, std::size_t, std::size_t,
+    double, double) {
+    MetalStencilSolveResult result;
+    result.backend = "cuda-fused-weighted-jacobi-2d-fp32-v1";
+    result.reason = "CUDA runtime unavailable in this build";
+    return result;
+}
+
+#endif  // !SMAVE_HAVE_CUDA_RUNTIME
+
 }  // namespace smave
+
