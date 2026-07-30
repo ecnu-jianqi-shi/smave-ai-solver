@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Model Name="NativeSubsystemInvalid">
+  <System>
+    <Block BlockType="SubSystem" Name="broken" SID="1">
+      <P Name="SampleTime">0.1</P>
+      <System>
+        <Block BlockType="Inport" Name="first" SID="11"><P Name="Port">1</P></Block>
+        <Block BlockType="Inport" Name="duplicate" SID="12"><P Name="Port">1</P></Block>
+      </System>
+    </Block>
+  </System>
+</Model>

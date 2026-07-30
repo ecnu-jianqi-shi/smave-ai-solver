@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Xdmf xmlns:xi="http://www.w3.org/2001/XInclude/" Version="2.99">
+  <Domain>
+    <Grid Name="DMSwarm[Particle Grid]" GridType="Uniform">
+      <Topology Dimensions="53" TopologyType="Mixed">
+        <DataItem Format="Binary" Endian="Big" DataType="Int" Dimensions="159" Seek="0">
+          initial_swarm_swarm_fields.pbin
+        </DataItem>
+      </Topology>
+      <Geometry Type="XY">
+        <DataItem Format="Binary" Endian="Big" DataType="Float" Precision="8" Dimensions="53 2" Seek="636">
+          initial_swarm_swarm_fields.pbin
+        </DataItem>
+      </Geometry>
+      <Attribute Center="Node" Name="w_q" Type="None">
+        <DataItem Format="Binary" Endian="Big" DataType="Float" Precision="8" Dimensions="53" Seek="1484">
+          initial_swarm_swarm_fields.pbin
+        </DataItem>
+      </Attribute>
+    </Grid>
+  </Domain>
+</Xdmf>

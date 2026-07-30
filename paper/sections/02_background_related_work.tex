@@ -1,0 +1,83 @@
+\section{Background and Related Work}
+\label{sec:related}
+
+\subsection{Classical Solver Ecosystems}
+
+Sparse direct and Krylov methods remain the correctness and robustness foundation
+for numerical simulation. GMRES handles nonsymmetric systems~\cite{saad1986gmres};
+SuperLU exposes sparse LU factorizations~\cite{li2005superlu}.
+SUNDIALS provides nonlinear, ODE, and DAE solvers with mature integration
+contracts~\cite{hindmarsh2005sundials}, while PETSc organizes portable solver
+composition~\cite{balay1997petsc}. These
+systems demonstrate the value of composable backends, but they generally require a
+user or fixed policy to choose among algorithms. \system builds on them as
+authoritative experts rather than attempting to replace their numerical semantics.
+
+\subsection{Learned PDE and Equation Solvers}
+
+DeepONet and Fourier neural operators learn mappings between function spaces
+~\cite{lu2021deeponet,li2021fno}. PDEBench provides a multi-family benchmark for
+scientific machine learning~\cite{takamoto2022pdebench}. These approaches can
+produce very fast inference for fixed families, but their reported error and
+speedup contracts vary in predicted quantity, hardware, training cost, and whether
+the original equation is checked per request.
+
+A complementary line learns components inside an iterative method. Learned
+preconditioners can reduce conjugate-gradient time while the iterative residual
+remains authoritative~\cite{li2023preconditioner}. FCG-NO places a
+resolution-transferable neural operator inside flexible conjugate gradients as a
+nonlinear preconditioner~\cite{rudikov2024fcgno}. \system generalizes this
+principle to a portfolio: learned warm starts, inverse actions, multigrid cycles,
+and full-state operators may all propose candidates, but their role and correction
+path are decided per equation family.
+
+Recent hybrid methods make the comparison closer. HINTS interleaves a DeepONet
+with relaxation to balance error modes in an iterative PDE solver
+~\cite{zhang2024hints}. The Greedy PDE Router chooses neural or classical updates
+at each iteration to optimize the error trajectory
+~\cite{rayan2025greedy}. Error-Conditioned Neural Solvers instead feed the
+residual field to a learned corrector and note that small residual need not imply
+small reconstruction error in ill-conditioned systems~\cite{jiang2026ens}.
+\system asks which typed pipeline remains profitable after every stage and rejection
+is charged. Its gate is mandatory final acceptance under the declared equation and
+constraint tolerance, not a proxy for unavailable ground-truth error.
+
+\subsection{Algorithm Portfolios and Mixtures of Experts}
+
+Rice's algorithm-selection formulation maps problem features to algorithms and
+performance~\cite{rice1976}; later surveys identify feature cost, distribution
+shift, and runtime overhead as central concerns~\cite{kotthoff2014}.
+
+Learned numerical-solver selection is also established. Lighthouse combines solver
+taxonomies with performance classification~\cite{jessup2016lighthouse}. Recent work
+adds matrix/right-hand-side representations~\cite{zhang2026spectra}, run-local adaptation
+~\cite{zabegaev2026datadriven}, and regret guarantees for sequential SOR tuning
+~\cite{khodak2024relax}. We therefore claim neither request conditioning,
+unseen-matrix prediction, nor online solver adaptation as unique.
+
+Cost-per-success ordering is also prior art: independent early-stop tests admit
+ratio orderings, including extensions with precedence constraints
+~\cite{berend2014tests}. We use that ordering as a lemma rather than a novelty
+claim; Proposition~\ref{prop:exact-finite-cascade} instead states the exactness
+boundary of our finite one-budget-per-expert recurrence.
+
+Multimode diagnosis already uses dynamic programming when mode changes alter later
+test costs~\cite{ruan2004multimode}. Our model keeps only adjacent cost effects and
+history-independent acceptance; neither transition-aware sequencing nor DP is new.
+
+Numerical solving introduces an additional constraint: a router decision is not
+itself evidence that a candidate satisfies the equation. \system therefore uses
+``gate'' in the numerical sense of an acceptance test computed from the original
+equation, distinct from the learned routing gate in a conventional MoE. The router may
+be wrong without making the returned answer wrong; a bad decision increases cost or
+continues to another numerical path, because the original-equation gate determines
+acceptance.
+
+\subsection{Positioning}
+
+HINTS and the Greedy PDE Router contribute iteration-level hybrids; solver selectors
+contribute request features and adaptation. \system instead studies a typed request-level
+cascade, a reach-weighted objective charging rejection and terminal fallback, and a
+return invariant that routing cannot bypass original-equation acceptance. The dated
+search audit supports no ``first'' claim for this combination or for the underlying
+ratio ordering.

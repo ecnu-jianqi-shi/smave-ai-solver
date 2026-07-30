@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmiModelDescription
+    fmiVersion="3.0"
+    modelName="SMAVEBlackbox"
+    instantiationToken="smave-blackbox-fixture-v1"
+    generationTool="SMAVE C++20 fixture"
+    generationDateAndTime="2026-07-16T00:00:00Z"
+    variableNamingConvention="structured"
+    numberOfEventIndicators="1">
+  <CoSimulation
+      modelIdentifier="SMAVEBlackbox"
+      canGetAndSetFMUState="true"
+      canSerializeFMUState="true"
+      providesDirectionalDerivatives="true"
+      canHandleVariableCommunicationStepSize="true"/>
+  <DefaultExperiment startTime="0" stopTime="1" tolerance="1e-6" stepSize="0.01"/>
+  <ModelVariables>
+    <Float64 name="gain" valueReference="1" causality="parameter" variability="tunable" initial="exact" unit="1" start="2"/>
+    <Float64 name="u" valueReference="2" causality="input" variability="continuous" unit="1" start="0"/>
+    <Float64 name="y" valueReference="3" causality="output" variability="continuous" unit="1"/>
+    <Clock name="tick" valueReference="4" causality="input" variability="discrete" intervalVariability="triggered"/>
+  </ModelVariables>
+</fmiModelDescription>

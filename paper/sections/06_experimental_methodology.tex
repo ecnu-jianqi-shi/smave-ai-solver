@@ -1,0 +1,199 @@
+\section{Experimental Methodology}
+\label{sec:methodology}
+
+\subsection{Research Questions}
+
+The evaluation addresses five research questions.
+
+\begin{description}
+  \item[RQ1:] Does one verified runtime cover heterogeneous equation families
+  without hiding failures or unsupported comparisons?
+  \item[RQ2:] When does complete-cost expert fusion accelerate repeated solves?
+  \item[RQ3:] Does calibrated routing improve over a fixed expert, jointly select
+  correction budget, and remain effective under workload shift?
+  \item[RQ4:] How do correction and original-equation verification affect learned
+  candidates?
+  \item[RQ5:] What do complete-cost decomposition, strict-gate, parallelism, and
+  device-placement studies reveal about the remaining bottlenecks?
+\end{description}
+
+\subsection{Platform and Build}
+
+The authoritative results in this draft were generated on an Apple M4 ARM64 system
+running macOS 26.5.2, Apple Clang 21.0.0, CMake 4.3.2, and a Release build. CPU
+paths use FP64 unless a device candidate explicitly declares another precision;
+all final equation gates are evaluated with the path-specific published contract,
+and the primary runtime contract uses CPU FP64 original expressions. Because this
+is one machine and software stack, we treat performance portability as an open
+threat rather than extrapolating to Linux/x86-64 or CUDA.
+
+\subsection{Workloads}
+
+Table~\ref{tab:suites} summarizes the evidence suites.
+
+\begin{table*}[t]
+\centering
+\caption{Evaluation suites and the claims they support. Counts are retained even
+when \system or the baseline does not produce a common successful result.}
+\label{tab:suites}
+\begin{tabular}{p{2.2cm}p{2.0cm}p{3.1cm}p{4.6cm}}
+\toprule
+Suite & Cases & Equation scope & Primary use in this paper \\
+\midrule
+SuiteSparse & 39 matrices & Sparse linear systems & Common-success agreement,
+backend coverage, and explicit no-common-success accounting \\
+PETSc TS & 17 equation cases & ODE/PDE time integration & Same-input trajectory and
+end-to-end comparisons against an external framework \\
+OpenModelica MSL & 7 models & Generated simulation systems & Embedded linear calls,
+trajectory agreement, and integration into a model runtime \\
+COPS & 68 instances & Nonlinear optimization and KKT systems & KKT agreement,
+external numerical continuation, resource gating, and full-NLP outcome classification \\
+PDEBench-derived & 7 families & Discretized PDE workloads & Authoritative verified
+speedup comparison under per-family same-input contracts \\
+Operator studies & 2 families & Repeated linear and nonlinear blocks & Held-out
+training/evaluation split, correction, gate, break-even, and complete runtime \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+The seven PDEBench-derived assets in Table~\ref{tab:suites} use designated classical
+baselines on identical inputs and accuracy contracts. Complete time includes setup,
+candidate, correction, and gate. Each workload has one warm-up and 30 process-level
+repetitions with alternating workload order and fixed inference threads. A separate
+probe alternates classical-first and \system-first phase order over 30 matched pairs;
+run-level total-runtime ratios, not within-run solves, are the inference unit.
+
+The linear and 16-variable nonlinear operator studies use 16 training and 64
+disjoint held-out scenarios, repeated in 100 batches (6,400 Runtime requests).
+A nonsymmetric Helmholtz replication is retained as a negative transfer result.
+
+Routing transfer uses a separate 5$\times$5 family with 64 scenarios and 20
+repetitions per axis: a source diagonal of $4.5$, a conditioning shift to $3.5$,
+and a topology shift with west/east coefficients $1.35/0.65$. Production competition
+and family-router paths include all candidate, gate, trace, and continuation cost; metrics
+cover eligible-expert calibration/rank, regret, speedup, status changes, and misroutes.
+
+Both primary operator families also use one shared transparent hybrid control. It
+reuses the same fitted FP64 latent candidate and held-out scenarios, applies at most
+32 weighted diagonal-residual Jacobi corrections, invokes a strict original-equation
+acceptance gate, and sends every rejection to the original classical
+solver. Candidate inference, correction, both gates, trace persistence, and continuation
+are included in the paired complete-runtime measurement. This control is a common
+algorithmic baseline, not an implementation of an external published method.
+
+The HINTS baseline pins official revision
+\texttt{0c8b712f81ed08bdf27c3a215f8edb99910f5e2f}~\cite{zhang2024hints}, pretrained
+weights, all 750 Poisson cases, 400 updates, the 25:1 schedule, and $\omega=2/3$.
+Both methods solve the exported 29-unknown system under the same FP64 normalized
+residual. Five runs follow three warm-ups; setup and HINTS diagnostics are excluded
+from online time. \system{} uses its unmodified production path.
+
+After headline timing, the production corrector is swept over
+$\{0,1,2,4,8,16,32\}$ for 30 rotated repetitions of all 64 held-out requests.
+Every point includes candidate, correction, gate, trace, and continuation; the stable
+mechanism result is the minimum budget attaining full acceptance, not the timing winner.
+
+For joint routing, three calibrated actions span two nonlinear experts with $k=2$.
+An independent enumerator checks every valid subset, budget, and order; production
+Runtime must reproduce the selected rejection--continuation--acceptance path. To test
+the finite-action recurrence beyond that probe, a fixed-seed property sweep constructs
+256 six-action cases (three experts, two budgets each), cycles $k$ from one to three,
+and exhaustively enumerates subsets and permutations. A second 256-case sweep adds 24
+adjacent multipliers; all 4,096 directed four-vertex graphs check the hardness reduction.
+A prefrozen planning-only counter study spans up to 16 experts plus the deployed shape.
+For profile transfer, two
+12-variable nonlinear SCC families each freeze Runtime-trace
+profiles on 32 scenarios and report regret against an exhaustive oracle on 32 disjoint
+held-out scenarios; this is not a workload-speedup measurement.
+
+The request-conditioned extension has three 12-variable nonlinear families, three
+experts, four budgets each, and $k=3$ (12 actions). Runtime traces provide 192/96/192
+training/calibration/held-out requests with three repetitions per action. Fixed ridge
+and logistic models are evaluated by cost error, Brier/calibration error, realized
+per-request oracle regret, static/fixed controls, plan diversity, exact-DP agreement,
+and production gate/continuation outcomes; held-out data never enter fitting or calibration.
+
+The public extension uses fixed six/four-matrix training/calibration sets, eight
+RHS/tolerance requests per matrix, and a 19-action PCG/GMRES/direct union. Three
+development folds establish the control-aware anchor rule without final-cohort data.
+Each final cohort contains three matrix-ID- and collection-group-disjoint matrices,
+one from each numeric class, and each compatible action is measured five times under
+a same-request counterbalanced terminal reference. Evaluation covers cost/pass
+prediction, exhaustive realized regret, control ablations, attempt order,
+independent original-matrix acceptance, terminal continuation, and action interaction.
+
+The protocol preserves all final outcomes. V4 is contract-invalid because its frozen
+verifier asserted 48 requests; v5 is a valid negative first run. After the guard and
+v6 package were frozen from development evidence, v6 was executed exactly once. A
+deterministic v5 counterfactual applies the current C++ anchor comparison to frozen
+tables with no solver execution. V5/v6 selection, payload, source, executable,
+verifier, and output-path contracts precede timing; no further cohort is searched. A
+post-hoc zero-execution audit uses held-out action statuses only for support-shift diagnosis.
+
+The intra-node study reuses 40 Navier--Stokes Helmholtz solves at $1,2,4,8,$ and
+$10$ workers. Each point has one warm-up and 30 alternating-order repetitions;
+Accelerate uses one internal thread. Fixed-seed 10,000-resample intervals use paired
+speedup ratios.
+
+The batch study fixes ten workers and increases same-dataset requests from 12 to 160
+solves per process under the same protocol. Throughput is solves divided by complete
+verified time and normalized to 12 solves.
+
+A second worker study isolates the fused gate on 2,080 linear and 2,080 nonlinear
+requests per repetition. It includes thread creation, alternates worker order over 30
+repetitions, and compares every decision/residual with a sequential reference. It
+measures gate throughput, not complete-solve scaling.
+
+\subsection{Baselines and Comparisons}
+
+Classical baselines are workload-specific and include structured direct solvers,
+PCG with classical preconditioners, restarted GMRES with ILUT/ILU(0), sparse direct
+backends, finite-difference Newton, and original model solvers. For routing, we
+compare a fixed expert, the online rule, a calibrated profile, simple feature
+selectors, and a hindsight per-scenario best gate-passing expert. The hindsight oracle is
+not deployable: it excludes search cost and uses query outcomes, so it is reported
+only as a reference for regret. The final SuiteSparse hierarchy separately reports
+the raw conditioned model, training-family fixed anchor, current control-aware anchor,
+global fixed SuperLU, static profile, and realized per-request oracle. These names are
+not interchangeable: the current policy may abstain to global fixed, while an offline
+replay can test that decision rule without producing new timing observations.
+
+\subsection{Metrics and Statistical Contract}
+
+The primary performance metric is paired complete-runtime speedup
+\begin{equation}
+ S=\operatorname{median}_i \frac{T_{\mathrm{baseline},i}}
+ {T_{\system,i}}.
+\end{equation}
+Where repeated paired samples are available, reports include a fixed-seed
+bootstrap 95\% interval and paired win rate. A speedup claim is considered stable
+only when the interval lower bound exceeds one. We additionally report residual or
+QoI error, acceptance, continuation, failure, timeout, no-common-success, gate mismatch,
+training time, and break-even queries.
+
+For the PDEBench-derived study, each paired sample is the baseline-to-\system total
+runtime ratio from one measured process run. The reported median, fixed-seed
+10,000-resample bootstrap interval, and run win rate are computed over 30 such
+ratios. The counterbalanced all-workload probe reports the paired ratio between
+\system-first and classical-first speedups for each of seven workloads. We summarize
+the per-workload median ratio and fixed-seed 10,000-resample paired bootstrap
+interval; this quantifies order sensitivity under two complete phase orders rather
+than proving order invariance. No per-solve independence is assumed. Router,
+operator, and gate studies likewise retain their declared paired repetition units
+and use the interval rule above.
+
+For a run with zero observed erroneous accepts in $n$ independent trials, the
+one-sided exact upper bound at confidence $1-\alpha$ is
+\begin{equation}
+ p_{\mathrm{upper}}=1-\alpha^{1/n}.
+\end{equation}
+The operator validations count 64 independent held-out scenarios, not 6,400 timing
+repetitions, and hence report a 95\% upper bound of 4.57\% after zero observed
+erroneous accepts. This conservative scenario-level statistic is separate from the
+deterministic residual decision for each candidate and is not a claim of zero risk.
+
+\subsection{Reproducibility and Claim Extraction}
+
+Every manuscript value is tied to a machine-generated report. The normalized core
+archive rebuilds Release, passes 29/29 tests, reruns solver evidence checks, and
+rebuilds the PDF; large benchmark payloads remain externally acquired.

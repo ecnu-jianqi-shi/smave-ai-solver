@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Model Name="NativeSwitch">
+  <System>
+    <Block BlockType="Constant" Name="true_value" SID="1"><P Name="Value">10</P><P Name="SampleTime">0.1</P></Block>
+    <Block BlockType="Constant" Name="control" SID="2"><P Name="Value">2</P><P Name="SampleTime">0.1</P></Block>
+    <Block BlockType="Constant" Name="false_value" SID="3"><P Name="Value">-10</P><P Name="SampleTime">0.1</P></Block>
+    <Block BlockType="Switch" Name="strict" SID="4"><P Name="Criteria">u2 &gt; Threshold</P><P Name="Threshold">2</P><P Name="SampleTime">0.1</P></Block>
+    <Block BlockType="Switch" Name="inclusive" SID="5"><P Name="Criteria">u2 &gt;= Threshold</P><P Name="Threshold">2</P><P Name="SampleTime">0.1</P></Block>
+    <Block BlockType="Switch" Name="nonzero" SID="6"><P Name="Criteria">u2 ~= 0</P><P Name="Threshold">99</P><P Name="SampleTime">0.1</P></Block>
+    <Line><P Name="Src">1#out:1</P><Branch><P Name="Dst">4#in:1</P><Branch><P Name="Dst">5#in:1</P></Branch><Branch><P Name="Dst">6#in:1</P></Branch></Branch></Line>
+    <Line><P Name="Src">2#out:1</P><Branch><P Name="Dst">4#in:2</P><Branch><P Name="Dst">5#in:2</P></Branch><Branch><P Name="Dst">6#in:2</P></Branch></Branch></Line>
+    <Line><P Name="Src">3#out:1</P><Branch><P Name="Dst">4#in:3</P><Branch><P Name="Dst">5#in:3</P></Branch><Branch><P Name="Dst">6#in:3</P></Branch></Branch></Line>
+  </System>
+</Model>

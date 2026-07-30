@@ -1,0 +1,16 @@
+\begin{tikzpicture}[
+  node distance=3mm,
+  stage/.style={draw,rounded corners,minimum width=18mm,minimum height=7mm,align=center},
+  arrow/.style={-{Latex[length=1.8mm]},thick}
+]
+\node[stage,fill=blue!7] (candidate) {Candidate\\expert};
+\node[stage,fill=blue!7,right=of candidate] (correction) {Local\\correction};
+\node[stage,fill=green!10,right=of correction] (verify) {Original\\gate};
+\node[stage,fill=orange!12,right=of verify] (continuation) {Next solver\\path};
+\node[stage,fill=green!10,right=of continuation] (commit) {Verified\\result};
+\draw[arrow] (candidate) -- (correction);
+\draw[arrow] (correction) -- (verify);
+\draw[arrow] (verify) -- node[above,font=\scriptsize]{reject} (continuation);
+\draw[arrow] (continuation) -- (commit);
+\draw[arrow] (verify.south) to[out=-70,in=-110] node[below,font=\scriptsize]{accept} (commit.south);
+\end{tikzpicture}

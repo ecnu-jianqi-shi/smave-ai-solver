@@ -1,0 +1,75 @@
+name: smave-native-external-performance
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  measure:
+    strategy:
+      fail-fast: false
+      matrix:
+        replicate: [1, 2, 3]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install native build dependencies
+        run: sudo apt-get update && sudo apt-get install -y ninja-build zlib1g-dev
+      - name: Run direction-agnostic native performance campaign
+        run: >-
+          benchmark/run_native_external_performance.sh
+          --provider github-hosted
+          --replicate-id ${{ matrix.replicate }}
+          --build build/native-external-performance
+          --output build/native-external-performance/replicate-${{ matrix.replicate }}
+          --jobs 2
+      - name: Upload replicate evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-external-replicate-${{ matrix.replicate }}
+          path: build/native-external-performance/replicate-${{ matrix.replicate }}
+          if-no-files-found: error
+          retention-days: 30
+
+  aggregate:
+    needs: measure
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download replicate evidence
+        uses: actions/download-artifact@v4
+        with:
+          pattern: native-external-replicate-*
+          path: build/downloaded-native-external
+          merge-multiple: false
+      - name: Aggregate three hosted jobs
+        run: >-
+          python3 benchmark/aggregate_native_external_performance.py
+          --input-root build/downloaded-native-external
+          --output build/native-external-summary/evidence.txt
+          --expected-replicates 3
+      - name: Independently verify aggregate and all replicates
+        run: >-
+          python3 benchmark/verify_native_external_performance_campaign.py
+          --campaign build/native-external-summary/evidence.txt
+          --input-root build/downloaded-native-external
+          --expected-replicates 3
+      - name: Upload campaign evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-external-campaign-summary
+          path: |
+            build/native-external-summary/evidence.txt
+            build/downloaded-native-external
+          if-no-files-found: error
+          retention-days: 30
+      - name: Attest the campaign manifest
+        uses: actions/attest@v4
+        with:
+          subject-path: build/native-external-summary/evidence.txt

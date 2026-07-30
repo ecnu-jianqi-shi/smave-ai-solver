@@ -1,0 +1,28 @@
+\begin{tikzpicture}[
+  node distance=5mm and 7mm,
+  box/.style={draw,rounded corners,align=center,minimum height=7mm,minimum width=18mm,fill=blue!5},
+  gatebox/.style={draw,rounded corners,align=center,minimum height=7mm,minimum width=18mm,fill=green!10},
+  failbox/.style={draw,rounded corners,align=center,minimum height=7mm,minimum width=18mm,fill=orange!12},
+  arrow/.style={-{Latex[length=2mm]},thick}
+]
+\node[box] (input) {Typed equation\\descriptor};
+\node[box,right=of input] (ir) {Hybrid DAE IR\\and fingerprint};
+\node[box,right=of ir] (assess) {Equation\\assessment};
+\node[box,below=of assess] (router) {Cost--risk Router\\and top-$k$ plan};
+\node[box,left=of router] (experts) {Classical, learned,\\and device experts};
+\node[box,left=of experts] (correct) {Family-specific\\correction};
+\node[gatebox,below=of correct] (gate) {FP64 original-equation\\recomputation gate};
+\node[failbox,right=of gate] (continuation) {Next numerical\\solver path};
+\node[gatebox,right=of continuation] (commit) {Verified\\result return};
+
+\draw[arrow] (input) -- (ir);
+\draw[arrow] (ir) -- (assess);
+\draw[arrow] (assess) -- (router);
+\draw[arrow] (router) -- (experts);
+\draw[arrow] (experts) -- (correct);
+\draw[arrow] (correct) -- (gate);
+\draw[arrow] (gate) -- node[above,font=\scriptsize]{reject} (continuation);
+\draw[arrow] (gate.south) |- node[pos=.25,left,font=\scriptsize]{accept} (commit.south);
+\draw[arrow] (continuation) -- (commit);
+\draw[arrow,dashed] (continuation.north) |- (router.east);
+\end{tikzpicture}

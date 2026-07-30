@@ -1,0 +1,180 @@
+\section{Verification-Aware Solver Selection}
+\label{sec:formulation}
+
+\subsection{Equation Workload}
+
+Let $q\in\mathcal{Q}$ denote one solve request. A request contains an equation
+family, dimensions and sparsity, coefficients or callback handles, initial state,
+tolerances, available compute backends, and an original state $s_q$. The equation
+family defines an authoritative residual or defect operator
+$\mathcal{R}_q(y)$ and a scaled acceptance threshold $\tau_q$. For dynamic
+systems, $y$ also contains time, derivatives, mode, and event metadata.
+
+An expert $e\in\mathcal{E}$ may be a complete classical solver, a preconditioner,
+a warm start, a learned operator, a device kernel, a corrector, or a verifier. Its
+output is therefore typed by a role $\rho(e)$ rather than assumed to be a final
+solution. A plan
+\begin{equation}
+  P=(e_{1:k},c,g,t)
+\end{equation}
+contains an ordered candidate cascade $e_{1:k}$, optional corrector $c$, mandatory
+gate $g$, and terminal numerical solver $t$. A gate is a numerical acceptance test
+derived from the original equation. If a stage is rejected, execution continues from
+the original request state to the next numerical path.
+
+\subsection{Complete Verified Cost}
+
+Let $R_j$ denote the event that cascade stage $j$ is reached and let $A_j$
+denote acceptance at that stage. Thus $R_1$ always occurs and
+$R_{j+1}=R_j\cap\neg A_j$. For stage $j$, let $K_j$ include candidate,
+transfer, correction, and gate cost; let $C_0$ include assessment, routing, and
+shared setup; and let $C_t$ include the terminal solver and its final gate. The
+conditional complete-cost model is
+\begin{align}
+\mathbb{E}[C(P,q)\mid\phi(q)] ={}& C_0(q)
+ + \sum_{j=1}^{k}\Pr(R_j\mid\phi(q))\bar K_j(q) \nonumber\\
+&+\Pr(R_{k+1}\mid\phi(q))\bar C_t(q),
+\label{eq:complete-cost}
+\end{align}
+where $\bar K_j=\mathbb{E}[K_j\mid R_j,\phi(q)]$ and
+$\bar C_t=\mathbb{E}[C_t\mid R_{k+1},\phi(q)]$.
+This reach-weighted form makes rejection and numerical continuation explicit. A microsecond
+candidate is not beneficial if transfer, correction, verification, or its
+probability of reaching the terminal solver dominates the saved classical work.
+
+The ideal router seeks
+\begin{equation}
+ P^*(q)=\arg\min_{P\in\mathcal{P}(q)}
+ \mathbb{E}[C(P,q)\mid \phi(q)]
+\label{eq:router-objective}
+\end{equation}
+subject to capability, memory, artifact, and role constraints. Here $\phi(q)$ is a
+feature vector derived without running all candidate experts. A hindsight per-
+scenario oracle is used only as an analysis reference; its search cost and query
+winner labels are excluded from deployable routing. In the evaluated profiles, stage
+costs and reach frequencies come from disjoint training/calibration scenarios, either
+as action-level constants or as functions of $\phi(q)$; held-out outcomes are not
+available to the online decision.
+
+The objective also yields an inspectable ordering rule. Let
+$p_j=\Pr(A_j\mid R_j,\phi(q))>0$ and assume that two eligible stages have
+order-invariant conditional costs and acceptance probabilities. Placing stage $a$
+before stage $b$ costs $\bar K_a+(1-p_a)\bar K_b$ before their common suffix; the
+reverse order costs $\bar K_b+(1-p_b)\bar K_a$. Therefore, $a$ should precede $b$
+if and only if
+\begin{equation}
+ \frac{\bar K_a}{p_a}\leq\frac{\bar K_b}{p_b}.
+\label{eq:cascade-index}
+\end{equation}
+Repeated adjacent exchanges show that sorting by $\bar K_j/p_j$ minimizes the
+expected cost of a fixed eligible cascade under these assumptions, consistent with
+prior independent-test ordering results~\cite{berend2014tests}. This result
+does not choose the globally optimal subset when stages change one another's state
+or when a contract fixes terminal-stage order.
+
+Correction effort is itself a routing decision. Let $\mathcal{B}_e$ be the
+calibrated budgets available for expert $e$, and let action $a=(e,b)$ have
+conditional attempt cost $K_a$ and acceptance probability $p_a$. At most one
+budget may be selected for each expert. After sorting actions by $K_a/p_a$, the
+optimal suffix value for action index $i$, used-expert set $S$, and remaining
+capacity $r$ is
+\begin{equation}
+\begin{aligned}
+ V(i,S,r)=\min\{&V(i+1,S,r),\\
+ &K_i+(1-p_i)V(i+1,S\cup\{e_i\},r-1)\},
+\end{aligned}
+\label{eq:joint-route-budget}
+\end{equation}
+with the take branch disabled when $e_i\in S$, and terminal value $C_t$ when
+$r=0$ or no action remains. The exact dynamic program jointly chooses expert, budget,
+and order under a bounded action model. The implementation accepts either static
+calibrated $(K_a,p_a)$ or request-conditioned predictions
+$(\widehat K_a(\phi),\widehat p_a(\phi))$; the original-equation gate remains outside
+the optimizer.
+
+For adjacent transition effects, let $M_{b,a}>0$ multiply $K_a$ after action $b$,
+with $M_{\bot,a}=1$. For used experts $S$, define
+\begin{equation}
+\begin{aligned}
+ W(S,b)=\min\{C_t,\min_{a:e_a\notin S}\{&K_aM_{b,a}\,+\\
+ &(1-p_a)W(S\cup\{e_a\},a)\}\},
+\end{aligned}
+\label{eq:interaction-route-budget}
+\end{equation}
+with the inner minimum disabled when $|S|=k$.
+
+\begin{proposition}[Finite cascade exactness and hardness]
+\label{prop:exact-finite-cascade}
+\label{prop:exact-interaction-cascade}
+\label{prop:interaction-hardness}
+With finite nonnegative costs, positive history-independent acceptance, capacity $k$,
+and one action per expert: (i) when $M_{b,a}=1$, sorting by $K_a/p_a$ and
+Eq.~\eqref{eq:joint-route-budget} are globally exact in $O(n2^m)$ worst-case scalar
+states/transitions; (ii) with immediately previous-action multipliers,
+$W(\varnothing,\bot)$ is globally exact with $O(n^2 2^m)$ transitions; and
+(iii) the rational interaction-aware decision problem is NP-complete even for
+$K_a=1$, $p_a=1/2$, $k=n$, $C_t=5$, and $M_{b,a}\in\{1,2\}$.
+\end{proposition}
+
+\begin{proof}
+Adjacent exchange plus backward induction proves (i); Bellman induction on remaining
+experts proves (ii). For (iii), reduce directed Hamiltonian path with one action per
+vertex and multipliers one on edges and two otherwise. Appending an action costs at
+most $4.5<C_t$, so every optimum uses all vertices, and cost is at most
+$\sum_{j=0}^{n-1}2^{-j}+5\,2^{-n}$ exactly for a Hamiltonian path. Membership in NP
+follows by evaluating a cascade; complete details are in the supplementary artifact.
+\end{proof}
+
+The 64-bit implementations support at most 63 experts and reject on state-cap
+overflow; exactness requires the cap to admit every reached state.
+
+\subsection{Numerical Acceptance and Continuation}
+
+The numerical contract is
+\begin{equation}
+\begin{aligned}
+ \operatorname{return}(y)&\Longrightarrow g_q(y)=\mathrm{accept},\\
+ g_q(y)&\equiv
+ \|D_q^{-1}\mathcal{R}_q(y)\|_\infty\le \tau_q.
+\end{aligned}
+\label{eq:gate}
+\end{equation}
+with family-specific additions for backward error, integration defect,
+constraints, complementarity, event guards, and DAE hidden residuals. $D_q$
+contains absolute, relative, and nominal scaling. The gate is computed from the
+original equation rather than a router score or learned confidence and is re-evaluated after correction.
+
+If $e_i$ fails, produces non-finite values, violates a contract, or is rejected by
+$g_q$, the next candidate starts from the original request state. A dynamic step is
+returned only after all state, derivative, event, and mode checks pass. Thus selection
+error and candidate error affect runtime and solve completion, but not the acceptance rule.
+
+\begin{proposition}[Verified-result return]
+\label{prop:verified-return}
+Assume that every result-return path invokes $g_q$ on the original request contract
+and returns only on acceptance. Then any successfully returned state $y$ satisfies
+$g_q(y)=\mathrm{accept}$, independently of the router ordering and of earlier
+candidate, corrector, or device failures.
+\end{proposition}
+
+\begin{proof}
+Each candidate path either fails, is rejected by $g_q$, or returns after acceptance.
+The first two cases proceed to another stage and cannot produce a successful result.
+The terminal solver is subject to the same rule. Therefore every successful return
+has passed $g_q$.
+\end{proof}
+
+Proposition~\ref{prop:verified-return} is a numerical solver control-flow
+invariant. It makes the acceptance boundary explicit but is not a theorem about an
+incorrectly specified residual callback or faulty arithmetic hardware.
+
+\subsection{Claims and Scope}
+
+The formulation supports three testable claims. First, complete-cost selection can
+outperform a fixed expert on qualified workloads. Second, correction can make an
+otherwise unusable learned candidate profitable without allowing model output to
+bypass original-equation acceptance. Third, mandatory original-equation gates reject observed bad
+candidates and preserve the verified-result return invariant, while the experiments test
+the implemented gates and continuation paths on observed workloads. The claim does not extend
+to arbitrary incorrect callbacks or floating-point hardware faults. These claims concern
+solver-internal numerical mechanisms and their observed experimental evidence.

@@ -1,0 +1,34 @@
+\section{Discussion and Limitations}
+\label{sec:discussion}
+
+V6 nearly matches oracle abstention but improves fixed by only
+$\SuiteRouteFixedImprovementPercent\%$; frozen v5 switches no request and remains
+$\SuiteRouteVFiveReplayVsFixed\times$ fixed. Brier/ECE
+$\SuiteRouteBrier$/$\SuiteRouteEce$ and p95 cost error
+$\SuiteRouteCostPNinetyFiveError$ preclude calibrated-model claims. Solver selection
+and components are prior art; the contribution is gate-controlled verified
+complete-path composition.
+
+External validity is narrow: all timing uses one Apple M4, and the PDEBench-derived,
+resource-limited COPS, one-HINTS, and three-matrix/24-request v5/v6 studies establish
+neither architecture nor population performance; opposite v5/v6 outcomes show mixed
+validity. Multi-host validation was attempted on a second ARM64 host (Nvidia DGX Station)
+but could not complete due to 40--60$\times$ performance penalty on large matrices; SMAVE
+build and execution succeeded, but platform suitability for timing benchmarks varies.
+A post-hoc zero-execution audit finds \FrozenAttritionSupportedPairs{}
+development-supported pairs, all absent at unguarded top-3 selection. Five different
+unsupported candidates appear across \FrozenAttritionUnguardedCandidateRequests{} v6
+requests, but the control-aware gate removes all; final candidates and timings are zero.
+Development--held-out overlap is zero (v5/v6 held-out sets
+\FrozenInteractionVFiveHeldoutPairs{}/\FrozenInteractionVSixHeldoutPairs{}, Jaccard
+\FrozenInteractionHeldoutJaccard{}), so no multiplier or interaction benefit is inferred.
+One PDEBench-derived case exceeds
+$100\times$; eight SuiteSparse cases lack common success; device, nonlinear, topology,
+and order effects remain. Broader prefrozen cohorts, architectures, and independent
+reruns are required.
+
+Residual gates cannot detect wrong callbacks, faulty arithmetic, or unavailable truth;
+small residual may mask state error in ill-conditioned systems~\cite{jiang2026ens}.
+Claims are only to declared equation/constraint tolerances. The interaction optimizer
+models adjacent costs, not longer-memory costs or history-dependent acceptance; general
+high-index reduction is excluded.

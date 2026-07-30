@@ -1,0 +1,383 @@
+\section{Evaluation}
+\label{sec:evaluation}
+
+\subsection{RQ1: Breadth, Agreement, and Explicit Failure Accounting}
+
+Table~\ref{tab:coverage} reports cross-suite outcomes. \system agrees on 31 of 39
+SuiteSparse matrices; all eight exceptions remain. All 17 PETSc cases complete,
+seven OpenModelica models execute 535,728 embedded linear calls, and all 68 COPS
+instances reach KKT comparison. Full-NLP coverage is narrower because resource
+gates, terminal-only cases, and timeouts are retained.
+
+\begin{table*}[t]
+\centering
+\caption{Cross-suite coverage from the authoritative overall report. ``Compared''
+means a same-input agreement or performance comparison exists under that suite's
+contract.}
+\label{tab:coverage}
+\begin{tabular}{lrrl}
+\toprule
+Suite & Attempted & Compared & Explicit exception \\
+\midrule
+SuiteSparse & 39 & 31 & 8 no common success \\
+PETSc TS equations & 17 & 17 & 0 pending \\
+OpenModelica MSL & 7 & 7 & 1 no linear subsystem \\
+COPS KKT & 68 & 68 & 0 failed \\
+COPS full NLP & 68 & 12 perf. & 46 terminal-only \\
+PDEBench-derived & 7 & 7 & 0 unreported \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+These counts demonstrate integration breadth, not universal solver dominance. In
+particular, a SuiteSparse failure and a COPS terminal-only solve remain failures of
+the stronger performance claim even if the runtime rejects the unsuccessful path.
+
+\subsection{RQ2: Verified PDE Workload Acceleration}
+
+Figure~\ref{fig:pdebench} and Table~\ref{tab:pde-details} report 30 paired runs per
+workload. Medians span $\PdeMinimumShort\times$--$\PdeMaximumShort\times$; every 95\%
+lower bound exceeds one, and every workload wins at least \PdeMinimumRunWins{} runs.
+
+\begin{table}[t]
+\centering
+\scriptsize
+\caption{PDEBench-derived same-input comparisons. Speedups are medians over 30
+paired process runs; brackets show fixed-seed bootstrap 95\% intervals. Each
+\system time includes setup, candidate kernel, and original-equation gate.}
+\label{tab:pde-details}
+\begin{tabular}{@{}lrlr@{}}
+\toprule
+Workload & Solves & Baseline & Result [95\% CI] \\
+\midrule
+Advection & \PdeAdvectionSolves & upwind & $\PdeAdvectionMedian\times$ $[\PdeAdvectionLower,\PdeAdvectionUpper]$ \\
+Darcy & \PdeDarcySolves & Jacobi--PCG & $\PdeDarcyMedian\times$ $[\PdeDarcyLower,\PdeDarcyUpper]$ \\
+Burgers & \PdeBurgersSolves & scalar direct & $\PdeBurgersMedian\times$ $[\PdeBurgersLower,\PdeBurgersUpper]$ \\
+Diffusion--Sorption & \PdeDiffusionSorptionSolves & tridiagonal & $\PdeDiffusionSorptionMedian\times$ $[\PdeDiffusionSorptionLower,\PdeDiffusionSorptionUpper]$ \\
+Shallow Water & \PdeShallowWaterSolves & PCG & $\PdeShallowWaterMedian\times$ $[\PdeShallowWaterLower,\PdeShallowWaterUpper]$ \\
+Navier--Stokes & \PdeNavierStokesSolves & 10-wkr PCG & $\PdeNavierStokesMedian\times$ $[\PdeNavierStokesLower,\PdeNavierStokesUpper]$ \\
+CFD1D & \PdeCfdOneDSolves & PCG & $\PdeCfdOneDMedian\times$ $[\PdeCfdOneDLower,\PdeCfdOneDUpper]$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\input{figures/pdebench_speedup}
+\caption{Verified end-to-end speedup over each workload's designated classical
+baseline. The log axis exposes both the six low-single-digit improvements and the
+single $\PdeMaximumShort\times$ result; error bars are bootstrap 95\% intervals over 30
+run-level paired ratios.}
+\label{fig:pdebench}
+\end{figure}
+
+Six workloads lie below $\PdeNonCfdMaximumShort\times$; only CFD1D exceeds
+$100\times$, rejecting a universal two-order-of-magnitude claim. In the 30-pair
+counterbalanced study, order ratios span \MinimumOrderRatio{}--\MaximumOrderRatio{}
+(maximum shift \MaximumOrderShiftPercent\%).
+\OrderIntervalsContainingOne{} of \OrderIntervalsTotal{} intervals include one;
+Diffusion--Sorption alone shows a small nonzero effect, while all 420 runs remain
+faster than baseline.
+
+The mechanisms also differ. Advection and Burgers profit from equation-structured
+batched recurrences and vectorized gates. Shallow Water and incompressible
+Navier--Stokes use learned/structured transforms with independent residual checks.
+The CFD workload has unusually favorable repeated structure and amortization. This
+heterogeneity motivates routing by equation family and complete cost rather than a
+single globally advertised expert.
+
+\subsection{RQ3: Routing Versus Fixed and Hindsight Experts}
+
+On the evaluated sparse family, the calibrated router selects SuperLU instead of a
+fixed structured tridiagonal expert and achieves a paired median speedup of
+$\CalibratedRouterSpeedup\times$ with a bootstrap 95\% interval of
+$[\CalibratedRouterLower,\CalibratedRouterUpper]$ and a
+\CalibratedRouterWinPercent\% paired
+win rate. The maximum mixed QoI error is $1.75\times10^{-6}$, with no dangerous
+misroutes in the report.
+
+The gate-passing hindsight reference reveals remaining headroom. The calibrated plan's
+median cost is $1.076\times$ the per-scenario hindsight oracle and lies within 5\%
+of it on 41.3\% of samples. A leave-one-scenario-out nearest-neighbor selector has
+only 53.1\% exact winner accuracy, yet reaches practical equivalence to the oracle
+on substantially more requests. This difference confirms that exact label accuracy
+is a poor primary metric when several gate-passing experts have near-equal complete cost.
+
+The 5$\times$5 source-to-6$\times$6 held-out shift preserves the selected expert,
+but not every timing relation. Among the eight experts that pass the original-
+equation gate in both families, cost-rank Spearman correlation is
+\ShiftGatePassingRankSpearman{} and maximum acceptance-probability calibration error is
+\ShiftGatePassingMaxCalibration{}. The source-selected expert is
+\ShiftSelectedRegret{}$\times$ the fastest gate-passing held-out expert by competition
+median. If structurally ineligible experts are included before filtering, maximum
+calibration error instead reaches \ShiftAllMaxCalibration{}. Thus structural
+eligibility is a prerequisite for meaningful probability calibration, and preserved
+winner identity does not imply zero complete-cost regret under size shift.
+
+Without refitting, the conditioning/topology matrix retains a minimum paired-speedup
+95\% lower bound of \ShiftMatrixMinimumLower{}, maximum filtered calibration error
+\ShiftMatrixMaximumCalibration{}, and maximum selected-cost regret
+\ShiftMatrixMaximumRegret{}$\times$. Topology changes
+\TopologyGateStatusChanges{} expert gate statuses with zero mismatch or dangerous
+misroute. Since the embedding remains identical, capability/gate filtering---not
+embedding similarity alone---preserves selection; family and hardware transfer remain
+untested.
+
+In the held-out joint-policy study, quadratic and cubic profiles select budgets
+$\JointShiftQuadraticBudget$ and $\JointShiftCubicBudget$. Across
+$\JointShiftHeldoutScenarios$ disjoint scenarios, maximum oracle regret is
+$\JointShiftMaximumRegret\times$, maximum pass-probability calibration difference is
+$\JointShiftMaximumCalibration$, and all requests succeed with
+$\JointShiftGateMismatches$ gate mismatches. The 32 first-stage rejections continue to
+32 second-stage acceptances. These controlled families test profile transfer, not a
+learned universal policy.
+
+Across $\ConditionedActionCount$ actions and $\ConditionedHeldoutRequests$ held-out
+requests, median cost error is $\ConditionedCostMedianError$; pass Brier/ECE are
+$\ConditionedBrier$/$\ConditionedEce$. Conditioned regret is
+$\ConditionedRegret\times$ versus $\StaticProfileRegret\times$ for static and
+$\FixedActionRegret\times$ for fixed controls. The router forms
+$\ConditionedDistinctPlans$ plans, changes from the mode on
+$\ConditionedPlanChangePercent\%$ of requests, matches exhaustive enumeration, and
+records $\ConditionedFallbacks$ terminal continuations and $\ConditionedGateMismatches$ gate
+mismatches. This controlled result does not establish public-workload dominance.
+
+Table~\ref{tab:suitesparse-final-routing} preserves both final SuiteSparse outcomes.
+V5 uses immutable first-run observations; only its control-aware row is a
+zero-execution counterfactual. V6 is the unique prefrozen first run.
+
+\begin{table}[t]
+\centering
+\scriptsize
+\caption{Final SuiteSparse routing outcomes. Lower regret is better. The v5
+control-aware value is an offline replay over frozen observations (R); all other
+entries are recorded first-run policies or controls.}
+\label{tab:suitesparse-final-routing}
+\begin{tabular}{lrr}
+\toprule
+Policy & V5 & V6 \\
+\midrule
+Current control-aware anchor & $\SuiteRouteVFiveReplayRegret^{\mathrm{R}}$ & $\SuiteRouteRegretPrecise$ \\
+Raw conditioned model & $2.457077$ & $\SuiteRouteRawRegret$ \\
+Training family-fixed & $4.489972$ & $\SuiteRouteRegretPrecise$ \\
+Global fixed SuperLU & $\SuiteRouteVFiveFixedRegret$ & $1.001123$ \\
+Static profile & $\SuiteRouteVFiveStaticRegret$ & $1.756465$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+V5 falsifies a general repair claim: the current rule switches
+$\SuiteRouteVFiveSwitchedRequests$/$\SuiteRouteVFiveRequests$ requests and remains
+$\SuiteRouteVFiveReplayVsFixed\times$ global fixed. One family already shares the
+global anchor; another harmful family action passes both cost and support tests.
+This is within-support cost miscalibration, not gate failure.
+
+V6 is favorable but narrow. Over $\SuiteRouteHeldoutMatrices$ matrices,
+$\SuiteRouteHeldoutRequests$ requests, and five repetitions, regret is
+$\SuiteRouteRegretPrecise\times$, $\SuiteRouteFixedImprovementPercent\%$ below fixed
+and $\SuiteRouteStaticImprovementPercent\%$ below static. It ties family-fixed because
+no specialization, adaptation, or transition is enabled. The guard removes the raw
+model's $\SuiteRouteRawRegret\times$ excess; RHS-only and tolerance-only controls also
+tie the anchor, so fine-grained request adaptation is not established.
+
+Median/p95/max cost error is $\SuiteRouteCostMedianError$/
+$\SuiteRouteCostPNinetyFiveError$/$\SuiteRouteCostMaxError$ and Brier/ECE is
+$\SuiteRouteBrier$/$\SuiteRouteEce$, weak diagnostics despite near-oracle control.
+All $\SuiteRouteSuccesses$ requests succeed with $\SuiteRouteFallbacks$ terminal
+continuations and zero failure, gate, order, or DP mismatch. Interaction/order deltas
+of $\SuiteRouteInteractionDelta$/$\SuiteRouteOrderDelta$ remain diagnostic; no
+transition enters the frozen policy.
+
+The nonlinear cascade supplies a counterexample to routing-as-free-speedup. On one
+coupled family, the online Equation-MoE path is $0.975\times$ the classic baseline
+with a confidence interval below one; on a cubic family it reaches $1.199\times$.
+The router therefore needs workload qualification and negative outcomes, not only
+aggregate win rates.
+
+\subsection{RQ4: Learned Candidates, Correction, and Break-Even}
+
+Table~\ref{tab:operators} compares the two held-out operator studies. The linear
+study accepts all 6,400 requests with zero continuation or failure and achieves
+$\LinearOperatorSpeedup\times$ $[\LinearOperatorLower,\LinearOperatorUpper]$ paired
+online speedup. Its measured training cost breaks
+even after \LinearOperatorBreakEven{} queries and remains amortized-positive at the
+10,000-query projection.
+
+The nonlinear operator's raw candidate is dramatically inaccurate: its maximum
+normalized full-state and QoI errors are 597.5 and 469.3. The strict gate rejects
+the raw candidate. Generic Newton correction then converts all 6,400 requests into
+accepted same-accuracy solves and yields $\NonlinearOperatorSpeedup\times$ online
+speedup with $[\NonlinearOperatorLower,\NonlinearOperatorUpper]$. A weighted
+diagonal residual/Jacobi corrector remains at 0\% acceptance after 32 steps, showing
+that correction is not a fungible post-processing layer.
+
+The production-corrector frontier further separates the two families. The linear
+candidate already reaches full acceptance at budget
+\LinearMinimumCorrectionBudget{}, so extra correction is unnecessary on that family.
+For the nonlinear family, budget zero accepts no request and budget one accepts only
+\NonlinearBudgetOneAcceptancePercent\%; the minimum full-acceptance budget is
+\NonlinearMinimumCorrectionBudget{}. At that operating point, candidate-inclusive
+complete cost is \NonlinearBudgetTwoVsZeroCostRatio{}$\times$ the budget-zero path,
+because avoiding the terminal classical solve more than pays for correction. All
+sweep points complete without Runtime failure. These family-specific thresholds do
+not imply one globally optimal correction budget.
+
+The shared hybrid control makes this comparison end-to-end. On the linear family it
+accepts \LinearSharedAccepted{} requests but reaches only
+$\LinearSharedBaselineSpeedup\times$ versus the classical baseline; the verified
+runtime is $\LinearOperatorVsSharedBaseline\times$
+$[\LinearOperatorVsSharedBaselineLower,\LinearOperatorVsSharedBaselineUpper]$ faster.
+On the nonlinear family, the same control rejects all candidates, executes
+\NonlinearSharedFallbacks{} mandatory terminal continuations, and reaches only
+$\NonlinearSharedBaselineSpeedup\times$; the verified runtime is
+$\NonlinearOperatorVsSharedBaseline\times$
+$[\NonlinearOperatorVsSharedBaselineLower,\NonlinearOperatorVsSharedBaselineUpper]$
+faster. Both controls have zero failures and gate mismatches. Thus the gain is not
+explained by merely adding any correction-and-continuation wrapper to the learned
+candidate.
+
+The native comparison executes official HINTS code, DeepONet, weights, and all
+\HintsNativeCases{} public cases; both methods have zero failures and maximum common
+residual \HintsNativeMaximumResidual{}. The default Router chooses
+\texttt{structured-tridiagonal-direct-cpu-v1} rather than forcing a learned path and
+is $\HintsNativeSpeedup\times$ $[\HintsNativeLower,\HintsNativeUpper]$ faster online;
+setup-amortized speedup over 10,000 requests is $\HintsNativeAmortizedSpeedup\times$.
+This supports complete-cost selection only for the official 1D Poisson workload, not
+a claim that a \system{} latent operator beats HINTS or that the result transfers.
+
+\begin{table}[t]
+\centering
+\footnotesize
+\caption{Held-out operator studies. Speedup includes candidate construction,
+correction, gate, and required runtime work.}
+\label{tab:operators}
+\begin{tabular}{lrr}
+\toprule
+Metric & Linear & Nonlinear \\
+\midrule
+Eval. requests & 6,400 & 6,400 \\
+Accept/continue/failure & 6,400/0/0 & 6,400/0/0 \\
+Validation cases & 64 & 64 \\
+95\% error-rate upper bound & 4.57\% & 4.57\% \\
+Online speedup & $\LinearOperatorSpeedup\times$ & $\NonlinearOperatorSpeedup\times$ \\
+95\% interval & $[\LinearOperatorLower,\LinearOperatorUpper]$ & $[\NonlinearOperatorLower,\NonlinearOperatorUpper]$ \\
+Shared-control speedup & $\LinearSharedBaselineSpeedup\times$ & $\NonlinearSharedBaselineSpeedup\times$ \\
+Training wall time & \LinearOperatorTrainingMs{} ms & \NonlinearOperatorTrainingMs{} ms \\
+Break-even queries & \LinearOperatorBreakEven{} & \NonlinearOperatorBreakEven{} \\
+Max. state error & $1.61\times10^{-5}$ & $7.29\times10^{-5}$ \\
+Raw candidate accepted & yes & no \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{RQ5: Intra-node Scaling and Heterogeneous Placement}
+
+Figure~\ref{fig:ns-scaling} separates scaling of the original-equation gate from
+the complete verified path. At ten workers, the gate reaches $2.068\times$ paired
+speedup with a bootstrap 95\% interval of $[1.982,2.172]$, whereas the complete
+path reaches only $1.207\times$ with $[1.100,1.354]$. Four workers reach
+$1.179\times$ complete-path speedup with $[1.085,1.241]$; the two-worker interval
+still includes one. Across all runs, the maximum original-equation relative
+residual is $4.01\times10^{-16}$ and the maximum cross-solver relative error is
+$1.37\times10^{-10}$.
+
+\begin{figure}[t]
+\centering
+\input{figures/ns_parallel_scaling}
+\caption{Intra-node worker scaling on 40 incompressible Navier--Stokes Helmholtz
+solves over 30 repetitions. Error bars are fixed-seed bootstrap 95\% intervals of
+paired speedup relative to one worker. Gate parallelism is useful, but the serial
+setup and spectral kernel bound complete-path gain.}
+\label{fig:ns-scaling}
+\end{figure}
+
+The gate result demonstrates a concrete parallel verification mechanism, while the
+end-to-end result prevents it from being advertised as linear solver scaling.
+Classical PCG reaches $3.69\times$ paired speedup at ten workers in the same study,
+so the remaining \system bottleneck is the worker-independent spectral kernel and
+setup rather than insufficient baseline parallelism. This is intra-node evidence
+on one Apple M4 host, not a multi-node or cross-architecture result.
+
+The gate-only study broadens the mechanism beyond the Navier--Stokes stencil.
+Table~\ref{tab:gate-family-scaling} reports paired speedup over the same sequential
+fused gate. At ten workers, the linear family reaches
+$\LinearGateTen\times$ with
+$[\LinearGateTenLower,\LinearGateTenUpper]$ and the nonlinear family reaches
+$\NonlinearGateTen\times$ with
+$[\NonlinearGateTenLower,\NonlinearGateTenUpper]$. Across 30 repetitions of 2,080
+requests per family, decisions and
+residuals exactly match the sequential gate. The different linear and nonlinear
+scaling curves show that gate parallelism depends on arithmetic intensity and per-
+request work; it is not a universal substitute for optimizing candidate generation
+or correction.
+
+\begin{table}[t]
+\centering
+\footnotesize
+\caption{Gate-only worker scaling across two equation families. Values are paired
+median speedups over one worker; all decision and residual mismatch counts are zero.}
+\label{tab:gate-family-scaling}
+\begin{tabular}{rrr}
+\toprule
+Workers & Linear gate & Nonlinear gate \\
+\midrule
+1 & $\LinearGateOne\times$ & $\NonlinearGateOne\times$ \\
+2 & $\LinearGateTwo\times$ & $\NonlinearGateTwo\times$ \\
+4 & $\LinearGateFour\times$ & $\NonlinearGateFour\times$ \\
+8 & $\LinearGateEight\times$ & $\NonlinearGateEight\times$ \\
+10 & $\LinearGateTen\times$ & $\NonlinearGateTen\times$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:ns-batch} tests amortization at a fixed ten requested workers. From
+12 to 160 real-data solves, complete-path per-solve time falls from $19.44\,\mu$s
+to $7.89\,\mu$s. Normalized complete throughput reaches $2.432\times$ with a
+bootstrap 95\% interval of $[2.256,2.521]$; gate throughput reaches
+$2.427\times$ with $[2.168,2.725]$. The maximum original-equation relative
+residual remains $5.71\times10^{-16}$ and the maximum cross-solver relative error
+is $3.40\times10^{-10}$.
+
+\begin{table}[t]
+\centering
+\footnotesize
+\caption{Fixed-worker batch scaling, normalized to 12 solves. Intervals are from
+30 paired repetitions; time is complete verified time per solve.}
+\label{tab:ns-batch}
+\begin{tabular}{rrl}
+\toprule
+Solves & Time/solve ($\mu$s) & Throughput scaling [95\% CI] \\
+\midrule
+12 & 19.44 & $1.000\times$ \\
+20 & 13.70 & $1.337\times$ $[1.246,1.449]$ \\
+40 & 10.71 & $1.741\times$ $[1.609,1.903]$ \\
+80 & 8.59 & $2.224\times$ $[2.104,2.322]$ \\
+160 & 7.89 & $2.432\times$ $[2.256,2.521]$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The batch curve confirms useful amortization but also saturates: a $13.3\times$
+increase in request count yields only $2.43\times$ throughput scaling. Together
+with Figure~\ref{fig:ns-scaling}, this identifies verification and setup/kernel
+fractions as different resource-allocation targets rather than one generic
+``parallel solver'' effect.
+
+The generic device execution probe runs real Metal and Apple Neural Engine
+candidates, verifies device/reference agreement, and accepts 64 GPU and two NPU
+requests without continuation. However, PDEBench-specific probes show that device
+backend support is not sufficient for performance. For Advection and Shallow Water,
+Metal and ANE candidates take tens of milliseconds and fail the final $10^{-10}$
+original-equation gate, while CPU FP64 structured paths complete in microseconds.
+Burgers and Diffusion--Sorption device iterations similarly fail residual or
+complete-cost criteria. The router therefore rejects those device paths.
+
+The second linear operator replication is another important negative result. Its
+paired bootstrap interval crosses one, so it does not establish stable acceleration
+despite retaining same-accuracy behavior. This prevents a positive Poisson-family
+result from being generalized to a different sparse topology.
+
+Together, the negative paths validate the core design choice: heterogeneous
+execution must be selected by verified end-to-end cost. A system that reports only
+successful neural inference or forced accelerator kernels would reach the opposite
+and incorrect conclusion on these workloads.

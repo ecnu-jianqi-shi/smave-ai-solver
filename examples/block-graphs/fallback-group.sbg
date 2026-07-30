@@ -1,0 +1,10 @@
+SMAVE_SIMULINK_EXPORT 1
+MODEL "FallbackGroup"
+NODE "source" "constant" 0.1 1 "value" "2"
+NODE "scale" "gain" 0.1 1 "gain" "1"
+NODE "plant" "algebraic_model" 0.1 1 "ir" "../GroupFallback.ir"
+NODE "delay" "unit_delay" 0.1 1 "initial" "0"
+CONNECTION "source" "out" "scale" "in"
+CONNECTION "scale" "out" "plant" "p"
+CONNECTION "plant" "x" "delay" "in"
+END

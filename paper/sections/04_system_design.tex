@@ -1,0 +1,105 @@
+\section{System Design}
+\label{sec:design}
+
+\subsection{Typed Hybrid DAE Intermediate Representation}
+
+\system accepts source-model front ends and a public typed ABI. Both lower to a
+Hybrid DAE IR containing variables, residual equations, block incidence, canonical
+CSR Jacobian structure, events, modes, resets, sample clocks, solver hints, and
+source hashes. Linear algebraic blocks, nonlinear systems, explicit ODEs, fully
+implicit DAEs, complementarity systems, and multi-rate block graphs are represented
+as specializations rather than unrelated solver paths.
+
+This common representation serves two purposes. It exposes comparable features to
+the router, and it ensures that front ends, the command-line interface, and the
+shared-library SDK reach the same assessment, plan, expert, gate, and continuation
+implementations. Unsupported semantics remain explicit capability failures; they
+are not converted to an unverified text-based path.
+
+\subsection{Equation Assessment}
+
+Assessment computes a read-only feature vector before expensive candidate
+execution. Features include dimension, nonzero count, density, symmetry and
+positive-definiteness probes, block/SCC structure, differentiation index metadata,
+event topology, parameter-domain distance, artifact compatibility, historical
+expert cost, memory estimate, and available devices. Structural tests are allowed
+to reject an expert but cannot certify the final numerical result.
+
+The assessment emits a family label and a capability-filtered expert set. For
+example, an SPD linear block may admit PCG with IC(0), Jacobi, or a learned
+multigrid preconditioner; a nonsymmetric block admits restarted GMRES with ILUT or
+ILU(0), sparse QR/LU, and a pivoting terminal solver. A nonlinear block admits a
+warm start or operator candidate followed by Newton correction. An eventful DAE
+requires state/derivative consistency projection, excluding the
+event-free caller stepper interface.
+
+\subsection{Expert Registry and Roles}
+
+Each expert declares its equation family, role, precision, device, memory model,
+artifact schema, cancellation boundaries, and continuation relationships. The registry
+distinguishes four roles:
+
+\begin{itemize}
+  \item \emph{candidate experts} produce a state, inverse action, or step proposal;
+  \item \emph{correctors} reduce the original residual from that proposal;
+  \item \emph{verifiers} evaluate original-equation acceptance contracts;
+  \item \emph{terminal experts} restart from the original request state.
+\end{itemize}
+
+Role separation avoids a common ambiguity in learned solvers: a fast predictor is
+not labeled a solver unless its downstream pipeline reaches an accepted result.
+
+\subsection{Two-Level Router}
+
+The first routing level filters experts by hard contracts. Before appending
+contract-required direct stages, the second orders remaining stages by the complete-cost index in
+Eq.~\eqref{eq:cascade-index}. The implementation uses a conservative stage-cost
+surrogate that adds a calibrated risk/OOD penalty before division by predicted
+acceptance probability; risk is therefore not a lexicographic override of complete
+cost. Contract-required direct and terminal solvers remain after speculative
+candidates. The current research
+baseline includes fixed rules, calibrated profiles, leave-one-scenario-out nearest
+neighbor and CART selectors, and a structure-derived cost selector. Exact winner
+accuracy is telemetry; practical regret relative to the gate-passing hindsight oracle is
+the primary measure because multiple experts may be equivalent within timing
+noise.
+
+Legacy calibrated profiles use the ceiling of observed median iterations from fully
+gate-verified attempts. Multi-budget profiles instead expose calibrated $(e,b)$
+actions. A request-conditioned profile standardizes declared equation/context
+features, predicts log attempt cost with ridge regression and acceptance with
+regularized logistic regression, and attaches disjoint-calibration error to action
+risk. Without calibrated interactions, the Router applies
+Eq.~\eqref{eq:joint-route-budget}. With conservative adjacent transition-cost
+multipliers, it applies Eq.~\eqref{eq:interaction-route-budget} and explores order
+inside the exact finite recurrence. Both paths have an explicit state limit, select
+at most one budget per expert, and charge terminal continuation after rejection.
+
+For the finite modeled action set, the dynamic programs return exact top-$k$ cascades
+under either independent costs or immediately previous-action cost multipliers when
+the state cap admits all reachable states. The 64-bit mask permits at most 63 experts;
+cap overflow is an error, not an approximate plan. Exactness does not extend to
+longer-memory costs or history-dependent acceptance. Built-in experts execute before a caller-supplied terminal solver. Learned artifacts are content-addressed and
+bound to equation family, source fingerprint, dimensions, precision, and training
+domain. A mismatched, revoked, or malformed artifact is excluded before inference.
+Proposition~\ref{prop:exact-finite-cascade} gives the exactness, complexity, and
+hardness boundaries.
+
+\subsection{Heterogeneous Placement}
+
+Requests with the same expert version, fingerprint, shape, precision, tolerance
+class, and mode are bucketed for batched execution. CPU SIMD is preferred for small
+micro-solves unless expected reuse exceeds device setup and transfer costs. Metal
+GPU and Apple Neural Engine paths generate FP32 or device-specific candidates,
+which are independently refined and verified on CPU FP64. Device placement is
+therefore a routing decision, not a correctness decision.
+
+\subsection{Public Runtime Boundary}
+
+The implementation exports opaque library, problem, solver, cancellation, and
+result handles through a frozen C ABI. Descriptors carry size and ABI version;
+callbacks provide structured residuals, Jacobians, guards, and resets. Relative
+deadlines and cancellation are cooperative. A bounded thread-local, per-library
+error stack reports status, operation, message, and trace identifier for covered
+pre-result failures. These facilities make experiments reproducible from an
+installed host without exposing C++ implementation types.

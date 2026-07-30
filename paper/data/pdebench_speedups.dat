@@ -1,0 +1,9 @@
+% Source: build/release/benchmark-overall/summary.txt, 2026-07-20.
+% workload speedup
+Advection 3.2516303320
+Darcy 4.6974795888
+Burgers 2.7404413819
+DiffSorp 1.5746021093
+ShallowWater 2.5560345077
+NS2D 2.4715142503
+CFD1D 111.1251427906

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmiModelDescription
+    fmiVersion="3.0"
+    modelName="SMAVEScheduledExecutionNoClock"
+    instantiationToken="smave-scheduled-execution-no-clock-v1">
+  <ScheduledExecution modelIdentifier="SMAVEBlackbox"/>
+  <ModelVariables>
+    <Float64 name="y" valueReference="3" causality="output" variability="discrete"/>
+  </ModelVariables>
+</fmiModelDescription>

@@ -1,0 +1,104 @@
+\section{Verification-Aware Expert Fusion}
+\label{sec:fusion}
+
+\subsection{Candidate--Corrector--Gate Pipeline}
+
+Figure~\ref{fig:fusion} shows the execution pipeline. A candidate receives the
+original request state. If it returns a finite proposal,
+a family-specific corrector may use that proposal as an initial condition. The gate
+then evaluates the original problem representation, not the candidate's internal
+loss, reduced model, or approximate Jacobian. Acceptance returns the verified result;
+rejection invokes another expert or the terminal classical solver from the original state.
+This control flow implements Proposition~\ref{prop:verified-return}: every
+successful return passes the original-equation gate. Candidate diagnostics remain
+observable, but an unverified candidate is never labeled a successful solve.
+
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{\input{figures/fusion_pipeline}}
+\caption{A fused solve is a typed numerical pipeline, not an averaged prediction.
+Each continuation path restarts from the original state and problem data.}
+\label{fig:fusion}
+\end{figure}
+
+\subsection{Linear and Nonlinear Algebraic Gates}
+
+For $Ax=b$, \system evaluates a scaled residual and normwise backward error using
+the original matrix representation. Dense and CSR layouts share the same numerical
+contract. Learned inverse actions and preconditioners cannot directly return a
+solution; a Krylov or correction stage and the original-equation gate determine acceptance.
+
+For nonlinear $F(x)=0$, the candidate is copied into a fresh Newton state. The
+corrector may use a callback Jacobian, finite-difference Jacobian, learned
+preconditioner, or family-specific structure. The final $F(x)$ is evaluated again
+through the original callback. An incorrect candidate Jacobian can affect cost but
+cannot replace the final residual.
+
+\subsection{ODE and DAE Gates}
+
+Explicit ODE candidates are checked for finite RHS evaluations and embedded or
+dense-output integration defects. The external event-free stepper interface returns
+quarter, midpoint, three-quarter, and endpoint states; the runtime independently
+evaluates the original RHS at five nodes and checks two composite-Simpson defects.
+
+For a fully implicit DAE $F(t,y,\dot y)=0$, the gate checks the original residual
+and backward-Euler kinematics. When an index-2 Hessenberg-like contract applies, it
+also checks hidden-constraint residual and hidden-Jacobian rank. Event solves locate
+roots, apply ordered reset batches, project consistency, and re-evaluate guards before
+returning state, derivative, mode, and audit metadata.
+
+\subsection{Complementarity and Block-Graph Gates}
+
+Strongly monotone linear complementarity candidates are checked for primal and
+dual feasibility and complementarity product. Multi-rate block graphs independently
+re-evaluate callback outputs, connection values, and same-rate fixed-point
+residuals. A local node continuation result is accepted only if its original output gate
+passes, preventing one component from bypassing graph-level correctness.
+
+\subsection{Strict Gate Optimization}
+
+The default contract performs a per-request FP64 original-expression gate. \system
+also evaluates a fused strict kernel that reorganizes the same original-equation
+arithmetic without changing decisions or tolerances.
+
+\subsection{Failure and Cancellation Semantics}
+
+Cancellation and relative deadlines are observed at cooperative boundaries between
+candidate attempts, nonlinear iterations, integration steps, root localization,
+and event publication. User callbacks and third-party kernels are not forcibly
+preempted. Cancellation or callback failure returns a stable failure status rather
+than a partial candidate; the next numerical path restarts from the original request state.
+
+\subsection{Numerical Failure Probes}
+
+Table~\ref{tab:acceptance-probes} maps the verified-result return rule to
+implementation-level numerical failure probes. The table is not a formal verification
+of the C++ implementation; it records which candidate, gate, and continuation boundaries
+are exercised.
+
+\begin{table*}[t]
+\centering
+\caption{Implementation probes for the verified-result return rule. Every probe
+is emitted as a machine-readable release report and retains rejection or failure as
+an explicit outcome.}
+\label{tab:acceptance-probes}
+\begin{tabular}{p{1.0cm}p{4.0cm}p{5.0cm}p{4.8cm}}
+\toprule
+Case & Injected numerical condition & Required observation & Release evidence \\
+\midrule
+(P1) & External ODE/DAE stepper returns an inaccurate proposal; inaccurate
+nonlinear raw candidate enters the pipeline & The original-equation gate rejects the
+candidate; no successful result is reported & External-stepper continuation and nonlinear-operator
+reports \\
+(P2) & Expert or bundle metadata is incompatible
+& Incompatible artifacts are excluded before candidate execution
+& Component-ablation report \\
+(P3) & Cancellation or deadline fires at a cooperative solve boundary
+& Stable failure status is returned without a partial success
+& C API cancellation report \\
+(P4) & External linear/ODE/DAE terminal solver fails, is cancelled, or violates a negative
+contract & The terminal solver runs after built-ins and must pass the original linear,
+dense-output, or DAE kinematic gate & External linear and stepper continuation reports \\
+\bottomrule
+\end{tabular}
+\end{table*}

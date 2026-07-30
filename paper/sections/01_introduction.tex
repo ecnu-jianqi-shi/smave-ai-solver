@@ -1,0 +1,92 @@
+\section{Introduction}
+\label{sec:introduction}
+
+Large simulation, optimization, and control pipelines rarely solve one equation
+instance in isolation. They repeatedly solve related sparse linear systems,
+nonlinear residual equations, ordinary differential equations (ODEs),
+differential--algebraic equations (DAEs), and event-driven subsystems as parameters,
+states, or boundary conditions change. Mature numerical libraries provide robust
+general-purpose algorithms for these families~\cite{saad1986gmres,li2005superlu,
+hindmarsh2005sundials,amestoy2001mumps}. However, the best algorithm and hardware
+path depend on structure, scale, conditioning, reuse, and requested accuracy. A
+single globally fixed solver consequently leaves substantial performance on the
+table.
+
+Learned numerical components create a second opportunity and a second failure
+mode. Neural operators and learned preconditioners can amortize computation over a
+parameterized family~\cite{li2021fno,lu2021deeponet,li2023preconditioner}, but raw
+prediction time is not complete solve time. Candidate construction, data movement,
+local correction, original-equation verification, and the next numerical attempt after
+rejecting an unsuitable candidate can dominate short solves. Moreover, a low average test error does not establish
+that an individual candidate satisfies the original equation. Directly replacing
+a classical solver therefore couples performance uncertainty to numerical risk.
+
+This paper studies the following scientific question:
+
+\begin{quote}
+\emph{Can heterogeneous classical and learned solver experts be fused so that
+selection minimizes complete verified runtime, while the original equations---not
+the learned model or router---determine which result is returned?}
+\end{quote}
+
+This question differs from conventional and numerical solver selection~\cite{rice1976,
+kotthoff2014,jessup2016lighthouse} in two ways.
+First, the selected object is not a single
+solver but a pipeline consisting of candidate generation, optional correction,
+a separately evaluated family-specific gate, and numerical continuation after
+rejection. Second, selection quality is
+measured by end-to-end verified cost and numerical rejection/continuation behavior, not raw kernel latency
+or hindsight winner accuracy.
+
+We answer through \system, a verification-aware Equation-Mixture-of-Experts runtime.
+It lowers typed equations to a common IR and constructs top-$k$ plans over classical,
+learned, and device experts with explicit candidate, corrector, verifier, and numerical
+continuation roles. A candidate is returned only after an FP64 gate evaluates the
+original residual, constraints, defect, or event consistency; rejection restarts the
+next numerical path from the original state.
+
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{\input{figures/architecture}}
+\caption{\system's verification-aware expert-fusion pipeline. Dashed control flow
+returns to the plan when an expert is inapplicable; no candidate bypasses the
+family-specific original-equation gate.}
+\label{fig:architecture}
+\end{figure}
+
+Our contributions are:
+
+\begin{enumerate}
+  \item We formulate heterogeneous numerical acceleration as a
+  \emph{verification-aware expert-selection} problem and derive a reach-weighted
+  complete-cost objective for candidate cascades, correction, original-equation
+  verification, transfer, rejection, and the terminal classical solve. For a fixed eligible cascade with
+  order-invariant stage statistics, we apply the classical pairwise-optimal
+  cost-per-acceptance ordering rule. For finite calibrated correction actions, we
+  prove exact dynamic programs for independent and adjacent-transition-cost models
+  under a one-budget-per-expert constraint. We also prove the interaction-aware
+  decision problem NP-complete, explaining the exponential dependence, and verify
+  both optimizers against exhaustive finite oracles.
+
+  \item We define a role-constrained candidate--corrector--gate--continuation pipeline
+  in which every returned result must satisfy a family-specific original-equation
+  contract. This separates numerical acceptance from router and learned-model quality:
+  a poor expert may waste time but cannot bypass the gate.
+
+  \item We implement the abstraction across algebraic and dynamic solver interfaces,
+  while separating interface coverage from acceleration evidence.
+
+  \item We retain complete-cost gains and failures. Seven PDEBench-derived workloads
+  span $\PdeMinimumShort\times$--$\PdeMaximumShort\times$ median speedup with all
+  95\% lower bounds above one; two operator studies beat a shared hybrid control; and
+  an official-code HINTS comparison uses the same equation contract. Gate-only,
+  complete-path, device, transfer, and nonlinear-routing negatives remain visible.
+  Final public routing is mixed: v6 reaches $\SuiteRouteRegretPrecise\times$ oracle
+  regret, only $\SuiteRouteFixedImprovementPercent\%$ below fixed, whereas the frozen
+  v5 replay remains $\SuiteRouteVFiveReplayVsFixed\times$ fixed.
+\end{enumerate}
+
+The results support a bounded conclusion: verified expert fusion can accelerate
+qualified repeated workloads, but it is not a universal replacement for classical
+solvers. Verification cost, model applicability, correction structure, and
+hardware placement must be treated as first-class design variables.

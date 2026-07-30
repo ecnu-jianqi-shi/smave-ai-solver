@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmiModelDescription fmiVersion="2.0" modelName="SMAVEFmi2MEScalarTypes"
+  guid="smave-fmi2-me-scalar-types-token" generationTool="SMAVE C++20 FMI 2 scalar fixture"
+  generationDateAndTime="2026-07-16T00:00:00Z" variableNamingConvention="flat"
+  numberOfEventIndicators="1">
+  <ModelExchange modelIdentifier="SMAVEFmi2ME" canGetAndSetFMUstate="true"/>
+  <DefaultExperiment startTime="0" stopTime="0.2" tolerance="1e-6" stepSize="0.1"/>
+  <ModelVariables>
+    <ScalarVariable name="x" valueReference="1" causality="local" variability="continuous" initial="exact"><Real start="0"/></ScalarVariable>
+    <ScalarVariable name="der_x" valueReference="2" causality="local" variability="continuous" initial="calculated"><Real derivative="1"/></ScalarVariable>
+    <ScalarVariable name="rate" valueReference="3" causality="parameter" variability="tunable" initial="exact"><Real start="1"/></ScalarVariable>
+    <ScalarVariable name="y" valueReference="4" causality="output" variability="continuous" initial="calculated"><Real/></ScalarVariable>
+    <ScalarVariable name="count" valueReference="5" causality="parameter" variability="tunable" initial="exact"><Integer start="0"/></ScalarVariable>
+    <ScalarVariable name="flag" valueReference="6" causality="parameter" variability="tunable" initial="exact"><Boolean start="false"/></ScalarVariable>
+    <ScalarVariable name="count_out" valueReference="7" causality="output" variability="discrete" initial="calculated"><Integer/></ScalarVariable>
+    <ScalarVariable name="flag_out" valueReference="8" causality="output" variability="discrete" initial="calculated"><Boolean/></ScalarVariable>
+    <ScalarVariable name="mode" valueReference="9" causality="parameter" variability="tunable" initial="exact"><Enumeration start="1"/></ScalarVariable>
+    <ScalarVariable name="mode_out" valueReference="10" causality="output" variability="discrete" initial="calculated"><Enumeration/></ScalarVariable>
+    <ScalarVariable name="label" valueReference="11" causality="parameter" variability="tunable" initial="exact"><String start=""/></ScalarVariable>
+    <ScalarVariable name="label_out" valueReference="12" causality="output" variability="discrete" initial="calculated"><String/></ScalarVariable>
+  </ModelVariables>
+  <ModelStructure>
+    <Outputs><Unknown index="4"/><Unknown index="7"/><Unknown index="8"/><Unknown index="10"/><Unknown index="12"/></Outputs>
+    <Derivatives><Unknown index="2"/></Derivatives>
+  </ModelStructure>
+</fmiModelDescription>

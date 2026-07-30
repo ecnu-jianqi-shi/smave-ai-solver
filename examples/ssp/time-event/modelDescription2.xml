@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmiModelDescription fmiVersion="2.0" modelName="SMAVEFmi2Variable"
+  guid="smave-fmi2-token" generationTool="SMAVE C++20 SSP variable-step fixture"
+  generationDateAndTime="2026-07-17T00:00:00Z" variableNamingConvention="flat"
+  numberOfEventIndicators="0">
+  <CoSimulation modelIdentifier="SMAVEFmi2"
+    canHandleVariableCommunicationStepSize="true"/>
+  <DefaultExperiment startTime="0" stopTime="0.3" tolerance="1e-6" stepSize="0.1"/>
+  <ModelVariables>
+    <ScalarVariable name="gain" valueReference="1" causality="parameter" variability="tunable" initial="exact"><Real start="2"/></ScalarVariable>
+    <ScalarVariable name="u" valueReference="2" causality="input" variability="continuous"><Real start="1"/></ScalarVariable>
+    <ScalarVariable name="y" valueReference="3" causality="output" variability="continuous" initial="calculated"><Real/></ScalarVariable>
+  </ModelVariables>
+  <ModelStructure><Outputs><Unknown index="3"/></Outputs></ModelStructure>
+</fmiModelDescription>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmiModelDescription fmiVersion="2.0" modelName="SMAVEFmi2ME"
+  guid="smave-fmi2-me-token" generationTool="SMAVE C++20 FMI 2 ME fixture"
+  generationDateAndTime="2026-07-16T00:00:00Z" variableNamingConvention="flat"
+  numberOfEventIndicators="1">
+  <ModelExchange modelIdentifier="SMAVEFmi2ME" canGetAndSetFMUstate="true"
+    canSerializeFMUstate="true"/>
+  <DefaultExperiment startTime="0" stopTime="0.2" tolerance="1e-6" stepSize="0.1"/>
+  <ModelVariables>
+    <ScalarVariable name="x" valueReference="1" causality="local" variability="continuous" initial="exact"><Real start="0"/></ScalarVariable>
+    <ScalarVariable name="der_x" valueReference="2" causality="local" variability="continuous" initial="calculated"><Real derivative="1"/></ScalarVariable>
+    <ScalarVariable name="rate" valueReference="3" causality="parameter" variability="tunable" initial="exact"><Real start="1"/></ScalarVariable>
+    <ScalarVariable name="y" valueReference="4" causality="output" variability="continuous" initial="calculated"><Real/></ScalarVariable>
+  </ModelVariables>
+  <ModelStructure><Outputs><Unknown index="4"/></Outputs><Derivatives><Unknown index="2"/></Derivatives></ModelStructure>
+</fmiModelDescription>

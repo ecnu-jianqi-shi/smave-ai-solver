@@ -1,0 +1,82 @@
+\section{Ablation and Cost Analysis}
+\label{sec:ablation}
+
+\subsection{Component-Level Ablation}
+
+On a four-stage synthetic contract, Eq.~\eqref{eq:cascade-index} matches the
+minimum over all 24 permutations. This checks fixed-cascade ordering, not
+probability calibration or globally optimal subset selection.
+
+The component matrix isolates router, candidate, correction, gate, and continuation on
+one 64-scenario linear workload. Forcing the operator while
+retaining correction and gate separates expert quality from router quality. A
+finite but deliberately bad candidate is rejected and reaches the deterministic terminal
+solver after the configured correction limit. Tampered expert, certificate, and
+RuntimeBundle artifacts are rejected by the production solve path rather than only
+by an offline checker.
+
+Removing the gate would make the nonlinear operator appear orders of magnitude
+faster because raw inference takes approximately $0.58\,\mu$s, but the maximum
+normalized state error exceeds 597. Removing correction would therefore convert a
+profitable verified path into a fast wrong answer. Conversely, applying the wrong
+corrector preserves the acceptance test but yields 0\% acceptance and no acceleration. These
+two ablations distinguish correctness from usefulness.
+
+The correction-budget sweep exposes a second mechanism-level ablation. On the linear
+family, budget zero already passes every original-equation test. On the nonlinear
+family, moving from zero to one correction step raises acceptance only to
+\NonlinearBudgetOneAcceptancePercent\%, whereas two steps reach full acceptance and
+reduce candidate-inclusive complete cost to
+\NonlinearBudgetTwoVsZeroCostRatio{}$\times$ the zero-step path. The relevant frontier
+is therefore discrete and family-dependent: too little correction pays for rejection
+and classical continuation, while unnecessary correction adds cost after acceptance
+has saturated. A production profile--Router--Newton probe confirms the mechanism: the
+same nonlinear candidate continues to the terminal solver at budget zero but is accepted after two Newton
+steps at budget two; this is not a universal two-step optimum.
+
+For three actions over two experts, the joint DP selects
+$(e_B,1)\rightarrow(e_A,2)$ at $\JointRouteSelectedCost\,\mu$s, matches the exhaustive
+oracle, costs $\JointRouteVsBestSingle\times$ the best single action, and executes the
+gate-verified rejection--continuation--acceptance path. Both fixed-seed
+$\JointRoutePropertyCases$-case independent and $\JointRouteInteractionCases$-case
+interaction sweeps have zero oracle gap; interactions change
+$\JointRouteInteractionChanged$ plans, and all $\JointRouteHardnessGraphs$ graphs satisfy
+Proposition~\ref{prop:interaction-hardness}. Planning-only states/transitions are
+$\JointScalingProductionStates$/$\JointScalingProductionTransitions$ for the deployed
+$\JointScalingProductionActions$-action, $k=3$ shape and
+\num{\JointScalingMeasuredStates}/\num{\JointScalingMeasuredTransitions} for the largest
+executed $\JointScalingMeasuredActions$-action, $k=6$ profile. Under the one-million cap,
+exact preflight admits \JointScalingCapAdmittedActions{} actions at
+\num{\JointScalingCapAdmittedStates} states but rejects \JointScalingCapRejectedActions{}
+at \num{\JointScalingCapRejectedStates} before any DP-state visit. These are optimizer/control
+checks, not transfer, timing, or workload-speedup evidence.
+
+\subsection{Fusing a Strict Gate}
+
+Reorganizing the same FP64 original-expression calculation yields
+$\FusedLinearGateSpeedup\times$ and $\FusedNonlinearGateSpeedup\times$ gate speedup
+over 100 repetitions of 65 requests, with lower bounds \FusedLinearGateLower{} and
+\FusedNonlinearGateLower{} and identical decisions/residuals. Verification can
+therefore be optimized without weakening acceptance, although full-solve impact
+remains workload-dependent because candidate and corrector cost can dominate.
+
+\subsection{Router Regret and Model Complexity}
+
+More complex selectors do not automatically improve deployable routing. The
+nearest-neighbor and depth-3 CART baselines narrow practical regret, but winner labels
+and selected experts vary with microsecond timing noise; a structure-derived selector
+also changes rank across runs. We therefore report regret, not winner accuracy, and
+retain a gate-filtered top-$k$ cascade. Control-aware abstention reduces v6 from raw
+$\SuiteRouteRawRegret\times$ to $\SuiteRouteRegretPrecise\times$, but switches no
+frozen v5 request; v6 alone would overstate robustness.
+
+\subsection{Where Time Goes}
+
+Raw candidates are only \LinearCandidateSharePercent\% and
+\NonlinearCandidateSharePercent\% of layered full-path time; correction plus Runtime
+gate accounts for \LinearCorrectionGateSharePercent\% and
+\NonlinearCorrectionGateSharePercent\%. Generic correction reaches only
+$\LinearSharedBaselineSpeedup\times$/$\NonlinearSharedBaselineSpeedup\times$, versus
+$\LinearOperatorSpeedup\times$/$\NonlinearOperatorSpeedup\times$ for complete paths;
+specialized recurrence, FFT, SIMD, and batched gates also drive PDEBench gains. Thus
+the target is fusion, not inference alone.

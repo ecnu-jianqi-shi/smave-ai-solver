@@ -1,0 +1,12 @@
+SMAVE_HYBRID 1
+MODEL "SampledPriorityReset"
+SAMPLE_TIME 0.1
+INITIAL_MODE "charging"
+STATE 2 "x" 0 "y" 0
+MODES 2
+MODE "charging" 2 "x" "x + 1" "y" "y"
+MODE "done" 0
+TRANSITIONS 2
+TRANSITION "low-priority" "charging" "done" 1 "x - 1.5" 0
+TRANSITION "high-priority" "charging" "done" 10 "x - 1.5" 2 "x" "x + 10" "y" "x + 20"
+END

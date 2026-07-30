@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmiModelDescription
+    fmiVersion="3.0"
+    modelName="SMAVETimeEventCS"
+    instantiationToken="smave-time-event-fixture-v1"
+    generationTool="SMAVE C++20 fixture"
+    generationDateAndTime="2026-07-16T00:00:00Z"
+    numberOfEventIndicators="0">
+  <CoSimulation modelIdentifier="SMAVETimeEventCS" hasEventMode="true"
+      canGetAndSetFMUState="true"/>
+  <DefaultExperiment startTime="0" stopTime="0.3" tolerance="1e-6" stepSize="0.1"/>
+  <ModelVariables>
+    <Float64 name="gain" valueReference="1" causality="parameter" variability="tunable" initial="exact" start="3"/>
+    <Float64 name="u" valueReference="2" causality="input" variability="continuous" start="2"/>
+    <Float64 name="y" valueReference="3" causality="output" variability="continuous"/>
+  </ModelVariables>
+</fmiModelDescription>

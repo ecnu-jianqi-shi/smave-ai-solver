@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Model Name="NativeGotoFromUnresolved">
+  <System>
+    <Block BlockType="From" Name="receive" SID="1"><P Name="GotoTag">missing</P></Block>
+    <Block BlockType="Gain" Name="sink" SID="2">
+      <P Name="Gain">2</P><P Name="SampleTime">0.1</P>
+    </Block>
+    <Line><P Name="Src">1#out:1</P><P Name="Dst">2#in:1</P></Line>
+  </System>
+</Model>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Model Name="NativeGotoFromChain">
+  <System>
+    <Block BlockType="SubSystem" Name="routing" SID="1">
+      <P Name="SampleTime">0.1</P>
+      <System>
+        <Block BlockType="Constant" Name="source" SID="11">
+          <P Name="Value">1</P><P Name="SampleTime">0.1</P>
+        </Block>
+        <Block BlockType="Goto" Name="send" SID="12"><P Name="GotoTag">signal</P></Block>
+        <Block BlockType="From" Name="receive" SID="13"><P Name="GotoTag">signal</P></Block>
+        <Block BlockType="Outport" Name="out" SID="14"><P Name="Port">1</P></Block>
+        <Line><P Name="Src">11#out:1</P><P Name="Dst">12#in:1</P></Line>
+        <Line><P Name="Src">13#out:1</P><P Name="Dst">14#in:1</P></Line>
+      </System>
+    </Block>
+    <Block BlockType="Gain" Name="sink" SID="2">
+      <P Name="Gain">2</P><P Name="SampleTime">0.1</P>
+    </Block>
+    <Line><P Name="Src">1#out:1</P><P Name="Dst">2#in:1</P></Line>
+  </System>
+</Model>

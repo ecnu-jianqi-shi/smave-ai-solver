@@ -1,0 +1,19 @@
+schema_version: smave.config.v1
+tolerance:
+  residual:
+    relative: 1.0e-8
+    absolute: 1.0e-10
+  qoi:
+    default_relative: 1.0e-4
+routing:
+  top_k: 4
+  min_pass_probability: 0.0
+  risk_weight: 1000.0
+  require_original_fallback: true
+safety:
+  ood_policy: fallback
+  event_policy: original
+  online_learning: false
+telemetry:
+  trace: true
+  retain_context: redacted

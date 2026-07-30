@@ -1,0 +1,13 @@
+SMAVE_HYBRID 1
+MODEL "CoupledSuperdenseController"
+SAMPLE_TIME 1
+INITIAL_MODE "waiting"
+STATE 1 "u" 0
+MODES 3
+MODE "waiting" 1 "u" "u"
+MODE "armed" 1 "u" "u"
+MODE "done" 0
+TRANSITIONS 2
+TRANSITION "arm" "waiting" "armed" 20 "tick - 0.5" 1 "u" "1"
+TRANSITION "finish" "armed" "done" 10 "y - 1" 1 "u" "-1"
+END

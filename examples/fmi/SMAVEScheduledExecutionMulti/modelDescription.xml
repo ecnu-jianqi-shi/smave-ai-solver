@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmiModelDescription
+    fmiVersion="3.0"
+    modelName="SMAVEScheduledExecutionMulti"
+    instantiationToken="smave-scheduled-execution-multi-v1"
+    generationTool="SMAVE C++20 fixture"
+    generationDateAndTime="2026-07-17T00:00:00Z">
+  <ScheduledExecution modelIdentifier="SMAVEBlackbox"/>
+  <DefaultExperiment startTime="0" stopTime="0.5" tolerance="1e-6" stepSize="0.25"/>
+  <ModelVariables>
+    <Float64 name="gain" valueReference="1" causality="parameter" variability="tunable" initial="exact" start="2"/>
+    <Float64 name="u" valueReference="2" causality="input" variability="continuous" start="1"/>
+    <Float64 name="y" valueReference="3" causality="output" variability="discrete"/>
+    <Clock name="fast" valueReference="46" causality="input" variability="discrete" intervalVariability="tunable" priority="20"/>
+    <Clock name="slow" valueReference="47" causality="input" variability="discrete" intervalVariability="tunable" priority="10"/>
+  </ModelVariables>
+</fmiModelDescription>

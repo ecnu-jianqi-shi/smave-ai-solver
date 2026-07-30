@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ssd:SystemStructure xmlns:ssd="http://ssp-standard.org/SSP1/SystemStructureDescription"
+  xmlns:ssc="http://ssp-standard.org/SSP1/SystemStructureCommon" version="1.0" name="SMAVEFeedForward">
+  <ssd:System name="FeedForward">
+    <ssd:Elements>
+      <ssd:Component name="A" source="resources/a.fmu" type="application/x-fmu-sharedlibrary">
+        <ssd:Connectors>
+          <ssd:Connector name="y" kind="output"><ssc:Real/></ssd:Connector>
+        </ssd:Connectors>
+      </ssd:Component>
+      <ssd:Component name="B" source="resources/b.fmu" type="application/x-fmu-sharedlibrary">
+        <ssd:Connectors>
+          <ssd:Connector name="missing" kind="input"><ssc:Real/></ssd:Connector>
+          <ssd:Connector name="y" kind="output"><ssc:Real/></ssd:Connector>
+        </ssd:Connectors>
+      </ssd:Component>
+    </ssd:Elements>
+    <ssd:Connections>
+      <ssd:Connection startElement="A" startConnector="y" endElement="B" endConnector="missing"/>
+    </ssd:Connections>
+  </ssd:System>
+</ssd:SystemStructure>

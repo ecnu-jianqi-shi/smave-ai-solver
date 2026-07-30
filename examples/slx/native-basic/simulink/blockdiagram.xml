@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Model Name="NativeBasic">
+  <System>
+    <Block BlockType="Constant" Name="source" SID="1">
+      <P Name="Value">3</P>
+      <P Name="SampleTime">0.1</P>
+    </Block>
+    <Block BlockType="Gain" Name="scale" SID="2">
+      <P Name="Gain">2</P>
+      <P Name="SampleTime">0.1</P>
+    </Block>
+    <Block BlockType="UnitDelay" Name="delay" SID="3">
+      <P Name="InitialCondition">1</P>
+      <P Name="SampleTime">0.1</P>
+    </Block>
+    <Line>
+      <P Name="Src">1#out:1</P>
+      <P Name="Dst">2#in:1</P>
+    </Line>
+    <Line>
+      <P Name="Src">2#out:1</P>
+      <P Name="Dst">3#in:1</P>
+    </Line>
+  </System>
+</Model>

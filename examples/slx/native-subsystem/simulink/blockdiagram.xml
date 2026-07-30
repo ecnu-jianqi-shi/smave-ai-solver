@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Model Name="NativeSubsystem">
+  <System>
+    <Block BlockType="Constant" Name="source" SID="1">
+      <P Name="Value">3</P><P Name="SampleTime">0.1</P>
+    </Block>
+    <Block BlockType="SubSystem" Name="amplifier" SID="2">
+      <P Name="SampleTime">0.1</P>
+      <System>
+        <Block BlockType="Inport" Name="in" SID="21"><P Name="Port">1</P></Block>
+        <Block BlockType="SubSystem" Name="inner" SID="22">
+          <P Name="SampleTime">0.1</P>
+          <System>
+            <Block BlockType="Inport" Name="in" SID="221"><P Name="Port">1</P></Block>
+            <Block BlockType="Gain" Name="double" SID="222">
+              <P Name="Gain">2</P><P Name="SampleTime">0.1</P>
+            </Block>
+            <Block BlockType="Outport" Name="out" SID="223"><P Name="Port">1</P></Block>
+            <Line><P Name="Src">221#out:1</P><P Name="Dst">222#in:1</P></Line>
+            <Line><P Name="Src">222#out:1</P><P Name="Dst">223#in:1</P></Line>
+          </System>
+        </Block>
+        <Block BlockType="Outport" Name="out" SID="23"><P Name="Port">1</P></Block>
+        <Line><P Name="Src">21#out:1</P><P Name="Dst">22#in:1</P></Line>
+        <Line><P Name="Src">22#out:1</P><P Name="Dst">23#in:1</P></Line>
+      </System>
+    </Block>
+    <Block BlockType="Gain" Name="triple" SID="3">
+      <P Name="Gain">3</P><P Name="SampleTime">0.1</P>
+    </Block>
+    <Line><P Name="Src">1#out:1</P><P Name="Dst">2#in:1</P></Line>
+    <Line><P Name="Src">2#out:1</P><P Name="Dst">3#in:1</P></Line>
+  </System>
+</Model>

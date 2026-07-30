@@ -1,0 +1,6 @@
+SMAVE_EVENT_CANDIDATES 1
+COUNT 3
+CANDIDATE 1 "high-priority" "charging"
+CANDIDATE 2 "high-priority" "charging"
+CANDIDATE 2 "low-priority" "charging"
+END

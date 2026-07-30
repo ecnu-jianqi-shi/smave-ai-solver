@@ -1,0 +1,20 @@
+/build/
+/build-*/
+/.smave/
+/.gitnexus/
+.DS_Store
+*.ir
+
+# Large generated benchmark sources (>10MB) — regenerate on demand with
+# python3 benchmark/generators/smave_bench_gen.py --min-unknowns 100000
+benchmark/linear-sparse/poisson-2d/Poisson2d_n317/
+benchmark/linear-sparse/poisson-3d/Poisson3d_n47/
+benchmark/linear-sparse/convection-diffusion/ConvDiff2d_n317/
+benchmark/linear-sparse/elasticity/Elasticity2d_n224/
+benchmark/linear-sparse/circuit-mna/CircuitMna_n100000/
+benchmark/nonlinear-algebraic/nonlinear-poisson/NonlinearPoisson2d_n317/
+benchmark/nonlinear-algebraic/bratu-2d/Bratu2d_n317/
+benchmark/nonlinear-algebraic/navier-stokes-steady/NavierStokesSteady2d_n183/
+benchmark/dae/transient-thermal/TransientThermal_n100000/
+benchmark/dae/reaction-diffusion-index1/ReactionDiffusionDae_n317/
+benchmark/modelica-derived/electrical-circuit/RcChain_n100000/

@@ -1,0 +1,13 @@
+SMAVE_SIMULINK_EXPORT 2
+MODEL "MultirateAccumulator"
+NODE "one" "constant" 0.1 0 1 "value" "1"
+NODE "fast-delay" "unit_delay" 0.1 0 1 "initial" "0"
+NODE "accumulator" "sum" 0.1 0 0
+NODE "slow-gain" "gain" 0.2 0.1 2 "gain" "10" "initial_output" "-10"
+NODE "slow-delay" "unit_delay" 0.2 0.1 1 "initial" "-20"
+CONNECTION "one" "out" "accumulator" "one"
+CONNECTION "fast-delay" "out" "accumulator" "feedback"
+CONNECTION "accumulator" "out" "fast-delay" "in"
+CONNECTION "accumulator" "out" "slow-gain" "in"
+CONNECTION "slow-gain" "out" "slow-delay" "in"
+END

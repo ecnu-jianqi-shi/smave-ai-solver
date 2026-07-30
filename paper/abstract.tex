@@ -1,0 +1,26 @@
+\begin{abstract}
+Repeated numerical solves span scientific computing, yet no solver is uniformly
+best. Learned candidates can lose their advantage after correction, verification,
+and continuation. We present \system, an
+Equation-Mixture-of-Experts runtime minimizing reach-weighted complete cost across
+classical and learned experts, correction, original-equation gates, and terminal
+fallback. For order-invariant cascades, we derive the optimal cost-per-acceptance
+order. Exact dynamic programs jointly select expert, correction budget, and order
+under independent or adjacent-transition costs; the interaction-aware decision form
+is NP-complete. Every returned result must pass an original-equation gate.
+
+On one Apple M4, a frozen 19-action policy evaluated once on three untouched
+SuiteSparse matrices and 24 right-hand-side/tolerance requests reaches
+$\SuiteRouteRegretPrecise\times$ realized-oracle regret, versus
+$\SuiteRouteFixedRegret\times$ for fixed SuperLU and
+$\SuiteRouteStaticRegret\times$ for a static profile. All requests succeed with zero
+gate, plan-order, or exact-DP mismatch. With no family adaptation or interaction
+transition, this is near-oracle control selection, not request adaptation. A
+zero-execution replay on frozen v5 switches 0/24 requests and
+remains $\SuiteRouteVFiveReplayVsFixed\times$ worse than global fixed, so the guard
+is not a general repair. Ten-worker gate-only speedups reach
+$\LinearGateTenShort\times$/$\NonlinearGateTenShort\times$; Navier--Stokes gate and
+complete-path scaling reach $2.07\times$/$1.21\times$. Seven PDEBench-derived
+comparisons and HINTS provide qualified evidence. Results remain
+one-host and workload-specific, not universal or cross-platform acceleration.
+\end{abstract}

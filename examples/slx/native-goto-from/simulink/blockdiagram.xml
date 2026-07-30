@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Model Name="NativeGotoFrom">
+  <System>
+    <Block BlockType="SubSystem" Name="routing" SID="2">
+      <P Name="SampleTime">0.1</P>
+      <System>
+        <Block BlockType="Constant" Name="source" SID="21">
+          <P Name="Value">4</P><P Name="SampleTime">0.1</P>
+        </Block>
+        <Block BlockType="Goto" Name="send" SID="22">
+          <P Name="GotoTag">signal</P><P Name="TagVisibility">local</P>
+        </Block>
+        <Block BlockType="From" Name="receive" SID="23">
+          <P Name="GotoTag">signal</P>
+        </Block>
+        <Block BlockType="Gain" Name="double" SID="24">
+          <P Name="Gain">2</P><P Name="SampleTime">0.1</P>
+        </Block>
+        <Block BlockType="Outport" Name="out" SID="25"><P Name="Port">1</P></Block>
+        <Line><P Name="Src">21#out:1</P><P Name="Dst">22#in:1</P></Line>
+        <Line><P Name="Src">23#out:1</P><P Name="Dst">24#in:1</P></Line>
+        <Line><P Name="Src">24#out:1</P><P Name="Dst">25#in:1</P></Line>
+      </System>
+    </Block>
+    <Block BlockType="Gain" Name="triple" SID="3">
+      <P Name="Gain">3</P><P Name="SampleTime">0.1</P>
+    </Block>
+    <Line><P Name="Src">2#out:1</P><P Name="Dst">3#in:1</P></Line>
+  </System>
+</Model>

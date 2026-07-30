@@ -1,0 +1,20 @@
+\begin{tikzpicture}
+\begin{axis}[
+  xbar,
+  width=6.4cm,
+  height=4.7cm,
+  bar width=7pt,
+  xmin=0.45,
+  xmax=2.6,
+  xlabel={Measured speedup ($\times$)},
+  ytick={0,1,2,3,4,5,6},
+  yticklabels={Linear op.,Linear shared,Nonlinear op.,Nonlinear shared,Router,Linear gate,Nonlinear gate},
+  y tick label style={font=\tiny},
+  xmajorgrids,
+  grid style={dotted},
+]
+\addplot[fill=green!45,draw=green!50!black]
+  table[x index=1,y expr=\coordindex] {data/operator_speedups.dat};
+\addplot[black,dashed,domain=1:1] coordinates {(1,-0.6) (1,6.6)};
+\end{axis}
+\end{tikzpicture}

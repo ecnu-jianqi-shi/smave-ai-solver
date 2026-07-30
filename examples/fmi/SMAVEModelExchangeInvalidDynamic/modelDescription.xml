@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmiModelDescription fmiVersion="3.0" modelName="SMAVEModelExchangeInvalidDynamic"
+    instantiationToken="smave-me-invalid-dynamic-token"
+    generationTool="SMAVE C++20 FMI 3 invalid dynamic array fixture"
+    generationDateAndTime="2026-07-16T00:00:00Z" numberOfEventIndicators="0">
+  <ModelExchange modelIdentifier="SMAVEBlackbox"/>
+  <DefaultExperiment startTime="0" stopTime="0.2" tolerance="1e-6" stepSize="0.1"/>
+  <ModelVariables>
+    <Int32 name="runtime_size" valueReference="40" causality="structuralParameter"
+        variability="tunable" initial="exact" start="3"/>
+    <Float64 name="dynamic_vector" valueReference="33" causality="input" variability="continuous">
+      <Dimension valueReference="40"/>
+    </Float64>
+    <Float64 name="dynamic_vector_out" valueReference="34" causality="output"
+        variability="continuous" initial="calculated">
+      <Dimension valueReference="40"/>
+    </Float64>
+  </ModelVariables>
+</fmiModelDescription>

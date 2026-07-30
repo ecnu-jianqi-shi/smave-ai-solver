@@ -1,0 +1,71 @@
+name: smave-ci
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-14, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y zlib1g-dev
+      - name: Configure
+        run: cmake --preset release
+      - name: Build focused targets
+        run: >-
+          cmake --build build/release --target
+          smave smave_c_api_host smave_c_api_abi_v1_host
+          smave_c_api_linear_service_probe
+          smave_c_api_nonlinear_service_probe
+          smave_c_api_complementarity_service_probe
+          smave_c_api_complementarity_cpp_host
+          smave_c_api_block_graph_service_probe
+          smave_c_api_block_graph_cpp_host
+          smave_c_api_index_two_dae_service_probe
+          smave_c_api_index_two_dae_cpp_host
+          smave_c_api_cancellation_service_probe
+          smave_c_api_cancellation_cpp_host
+          smave_c_api_external_linear_fallback_probe
+          smave_c_api_external_linear_fallback_cpp_host
+          smave_c_api_external_stepper_fallback_probe
+          smave_c_api_error_stack_probe
+          smave_cpp_api_raii_host
+          smave_c_api_ode_service_probe
+          smave_tests
+          smave_solve_service_unit smave_periodic_linear_unit
+          smave_pdebench_training_unit smave_sparse_suite_unit -j2
+      - name: Run focused tests
+        run: >-
+          ctest --test-dir build/release
+          -R 'smave_(c_api_host|c_api_abi_v1_host|c_api_complementarity_service_probe|c_api_complementarity_cpp_host|c_api_block_graph_service_probe|c_api_block_graph_cpp_host|c_api_index_two_dae_service_probe|c_api_index_two_dae_cpp_host|c_api_cancellation_service_probe|c_api_cancellation_cpp_host|c_api_external_linear_fallback_probe|c_api_external_linear_fallback_cpp_host|c_api_external_stepper_fallback_probe|c_api_error_stack_probe|cpp_api_raii_host|solve_service_unit|solve_service_reuse|release_store_recovery|periodic_linear_unit|pdebench_training_unit|sparse_suite_unit)'
+          --output-on-failure
+      - name: Verify SDK and shared service
+        run: >-
+          cmake --build build/release --target
+          reproduce-c-api-sdk reproduce-c-api-abi-matrix reproduce-solve-service
+          reproduce-gate-architecture reproduce-nonlinear-cascade
+          reproduce-risk-adaptive-gate reproduce-paired-oracle
+          reproduce-operator-replication -j2
+      - name: Upload SDK evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: c-api-sdk-${{ matrix.os }}
+          path: |
+            build/release/c-api-sdk/*.txt
+            build/release/c-api-abi-matrix/*.txt
+            build/release/solve-service/*.txt
+            build/release/gate-architecture/*.txt
+            build/release/risk-adaptive-gate/*.txt
+            build/release/nonlinear-cascade/**/*.txt
+            build/release/paired-oracle/evidence.txt
+            build/release/operator-replication/evidence.txt
+            build/release/operator-replication/performance.txt
+            build/release/operator-replication/benchmark-traces/operator-statistics.txt

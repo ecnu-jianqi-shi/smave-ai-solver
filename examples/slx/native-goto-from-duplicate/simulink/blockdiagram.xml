@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Model Name="NativeGotoFromDuplicate">
+  <System>
+    <Block BlockType="Constant" Name="source" SID="1">
+      <P Name="Value">1</P><P Name="SampleTime">0.1</P>
+    </Block>
+    <Block BlockType="Goto" Name="first" SID="2"><P Name="GotoTag">signal</P></Block>
+    <Block BlockType="Goto" Name="duplicate" SID="3"><P Name="GotoTag">signal</P></Block>
+    <Block BlockType="From" Name="receive" SID="4"><P Name="GotoTag">signal</P></Block>
+    <Block BlockType="Gain" Name="sink" SID="5">
+      <P Name="Gain">2</P><P Name="SampleTime">0.1</P>
+    </Block>
+    <Line><P Name="Src">1#out:1</P><P Name="Dst">2#in:1</P></Line>
+    <Line><P Name="Src">1#out:1</P><P Name="Dst">3#in:1</P></Line>
+    <Line><P Name="Src">4#out:1</P><P Name="Dst">5#in:1</P></Line>
+  </System>
+</Model>

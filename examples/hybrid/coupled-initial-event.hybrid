@@ -1,0 +1,11 @@
+SMAVE_HYBRID 1
+MODEL "CoupledInitialEventController"
+SAMPLE_TIME 0.5
+INITIAL_MODE "waiting"
+STATE 1 "u" 1
+MODES 2
+MODE "waiting" 1 "u" "u"
+MODE "fired" 0
+TRANSITIONS 1
+TRANSITION "initial-fire" "waiting" "fired" 10 "y - 1" 1 "u" "-1"
+END

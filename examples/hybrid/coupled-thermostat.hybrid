@@ -1,0 +1,12 @@
+SMAVE_HYBRID 1
+MODEL "CoupledThermostatController"
+SAMPLE_TIME 0.5
+INITIAL_MODE "heating"
+STATE 1 "u" 1
+MODES 2
+MODE "heating" 1 "u" "u"
+MODE "cooling" 1 "u" "u"
+TRANSITIONS 2
+TRANSITION "switch-to-cooling" "heating" "cooling" 10 "x - 0.75" 1 "u" "-1"
+TRANSITION "switch-to-heating" "cooling" "heating" 10 "0.25 - x" 1 "u" "1"
+END
