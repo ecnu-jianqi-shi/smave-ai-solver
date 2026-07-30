@@ -1596,10 +1596,10 @@ Burgers 在公共批量 workspace 上进一步加入跨实例状态仿射循环�
 | `REQ-CORR-001` correction-budget sweep | §8.3.1、§10.1、Phase P0-A | `calibrated-correction-router`、`joint-route-budget-shift`、预算×专家×家族报告 |
 | `REQ-COST-001` 完整成本分解 | §8.2、§8.3.1、§15、§20.4 | `complete-cost-decomposition`、reach-weighted 重构、分项墙钟与 verifier |
 | `REQ-SHIFT-001` shift calibration/regret | §8.3.2、§13、Phase P0-B | `router-shift`、`router-shift-matrix`、request-conditioned/SuiteSparse regret |
-| `REQ-OOD-STRUCT-001` OOD 结构过滤 | §8.1 StructuralOODFilter、§8.3.2 | coverage、误拒、危险放行、`STRUCTURAL_OOD_REJECT` trace |
+| `REQ-OOD-STRUCT-001` OOD 结构过滤 | §8.1 StructuralOODFilter、§8.3.2 | `structural-ood-filter/evidence.txt`、coverage、误拒、危险放行、`STRUCTURAL_OOD_REJECT` trace |
 | `REQ-EXT-BASE-001` 强外部 hybrid 基线 | §20.3、Phase P0-C | `hints-native-baseline/evidence.txt` 或同等级固定 revision 外部方法 |
 | `REQ-NATIVE-X86-001` 原生 x86-64 | §12.5、Phase P0-C | hosted workflow、三方 provenance、raw samples、aggregate verifier/attestation |
-| `REQ-NATIVE-CUDA-001` 原生 CUDA | §12.5、Phase P0-C | 待新增 native CUDA workflow/target、完整路径 evidence/manifest/verifier |
+| `REQ-NATIVE-CUDA-001` 原生 CUDA | §12.5、Phase P0-C | `native-cuda/evidence.txt`、`reproduce-native-cuda-campaign`、冷/热 setup/transfer/residency/gate、provenance verifier |
 | `REQ-WORKLOAD-001` 四类 workload | §20.2、Phase P0-D | large sparse/nonlinear/DAE/operator coverage matrix |
 | `REQ-FULLPATH-PAR-001` 完整路径并行 | §20.5、Phase P0-D | gate-only/full-path、资源对称 scaling、P99 与组件并行分数 |
 | `REQ-BATCH-001` batch 摊销 | §12.2、§20.5、Phase P0-D | batch-size/cold-warm/等待/transfer/gate/fallback/break-even |

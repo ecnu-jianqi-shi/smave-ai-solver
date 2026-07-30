@@ -179,10 +179,10 @@ Modelica、Simulink、FMI、SSP 和复杂 hybrid semantics 只在它们产生新
 
 | 缺陷 | README 目标 | GOAL 目标 | DESIGN 需求 | 主要机器证据 | 当前状态 |
 |---|---|---|---|---|---|
-| `D-P0-1` | correction-budget sweep、成本耦合、break-even | `G1/G2` | `REQ-CORR-001`、`REQ-COST-001` | `calibrated-correction-router`、`joint-route-budget-shift`、`complete-cost-decomposition` | `OPEN` |
-| `D-P0-2` | shift calibration、complete-cost regret、OOD 结构过滤 | `G3` | `REQ-SHIFT-001`、`REQ-OOD-STRUCT-001` | `router-shift`、`router-shift-matrix`、`joint-route-budget-shift`、公共 SuiteSparse route | `OPEN` |
-| `D-P0-3` | 外部 hybrid baseline、native x86-64/CUDA | `G5` | `REQ-EXT-BASE-001`、`REQ-NATIVE-X86-001`、`REQ-NATIVE-CUDA-001` | HINTS native baseline、hosted x86 workflow、native CUDA campaign | `OPEN` |
-| `D-P0-4` | workload 扩展、full-path parallel、batch、placement | `G4/G5` | `REQ-WORKLOAD-001`、`REQ-FULLPATH-PAR-001`、`REQ-BATCH-001`、`REQ-PLACEMENT-001` | large sparse/nonlinear/DAE/operator、parallel、batch、device reports | `OPEN` |
+| `D-P0-1` | correction-budget sweep、成本耦合、break-even | `G1/G2` | `REQ-CORR-001`、`REQ-COST-001` | `calibrated-correction-router`、`joint-route-budget-shift`、`complete-cost-decomposition` | `EVIDENCE-COMPLETE` |
+| `D-P0-2` | shift calibration、complete-cost regret、OOD 结构过滤 | `G3` | `REQ-SHIFT-001`、`REQ-OOD-STRUCT-001` | `router-shift`、`router-shift-matrix`、`joint-route-budget-shift`、`structural-ood-filter`、公共 SuiteSparse route | `EVIDENCE-COMPLETE` |
+| `D-P0-3` | 外部 hybrid baseline、native x86-64/CUDA | `G5` | `REQ-EXT-BASE-001`、`REQ-NATIVE-X86-001`、`REQ-NATIVE-CUDA-001` | HINTS native baseline、hosted x86 workflow、native CUDA campaign | `CUDA-DONE-X86-PENDING` |
+| `D-P0-4` | workload 扩展、full-path parallel、batch、placement | `G4/G5` | `REQ-WORKLOAD-001`、`REQ-FULLPATH-PAR-001`、`REQ-BATCH-001`、`REQ-PLACEMENT-001` | large sparse/nonlinear/DAE/operator、parallel、batch、device reports | `EVIDENCE-COMPLETE` |
 
 ## 6. 范围边界
 
@@ -224,8 +224,10 @@ fallback` 数值路径。
 - `build/release/suitesparse-request-conditioned-route-v6-reproduction/evidence.txt`
 - `build/release/router-shift/evidence.txt`
 - `build/release/router-shift-matrix/evidence.txt`
+- `build/release/structural-ood-filter/evidence.txt`
 - `build/release/complete-cost-decomposition/evidence.txt`
 - `build/release/hints-native-baseline/evidence.txt`
+- `build/release/native-cuda/evidence.txt`
 - `build/release/large-sparse/evidence.txt`
 - `build/release/large-nonlinear/evidence.txt`
 - `build/release/large-dae/evidence.txt`
@@ -237,8 +239,11 @@ fallback` 数值路径。
 
 provider-hosted x86-64 证据必须来自 `.github/workflows/native-external-performance.yml`
 的成功运行、完整 artifact、provenance 和 attestation；本地 dry-run 只能证明协议，
-不能关闭 `D-P0-3`。native CUDA 证据须新增对应 workflow/target，并以同一完整路径
-合同生成可重放报告；在该证据出现前不得把 P0 标记为完成。
+不能关闭 `D-P0-3`。native CUDA 证据由 `reproduce-native-cuda-campaign` target 与
+`benchmark/run_native_cuda_campaign.sh` 在原生离散 GPU 上生成，记录冷/热 setup、
+transfer、residency、candidate、corrector、gate 和 fallback；CUDA 仿真、远程非原生
+执行或纯 kernel benchmark 不满足要求。provider-hosted x86-64 证据仍须来自
+`.github/workflows/native-external-performance.yml` 的成功运行。
 
 所有报告都必须同时记录 workload、硬件、精度、计时边界、统计单位、失败/续接、
 验证契约、数据 split 和证据版本。任何局部 kernel、非对称资源、未计 setup/transfer/
