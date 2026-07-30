@@ -252,26 +252,25 @@ PerformanceReport benchmark_runtimes(
     for (const auto& path : paths) {
         const auto scenario = read_scenario(path);
         for (std::size_t warmup = 0; warmup < warmup_repetitions; ++warmup) {
-            auto baseline_warmup = baseline.solve(
-                scenario, trace_directory / "warmup-baseline");
-            discard_trace(trace_directory / "warmup-baseline", baseline_warmup);
-            auto accelerated_warmup = accelerated.solve(
-                scenario, trace_directory / "warmup-accelerated");
-            discard_trace(trace_directory / "warmup-accelerated", accelerated_warmup);
+            auto baseline_warmup = baseline.solve(scenario, std::filesystem::path{});
+            auto accelerated_warmup = accelerated.solve(scenario, std::filesystem::path{});
         }
         for (std::size_t repetition = 0; repetition < repetitions; ++repetition) {
             TimedOutcome baseline_result;
             TimedOutcome accelerated_result;
+            const bool retain = repetition == 0;
             if (repetition % 2 == 0) {
                 baseline_result = timed_solve(
-                    baseline, scenario, trace_directory / "baseline", repetition == 0);
+                    baseline, scenario,
+                    retain ? (trace_directory / "baseline") : std::filesystem::path{}, retain);
                 accelerated_result = timed_solve(
-                    accelerated, scenario, trace_directory / "accelerated", repetition == 0);
+                    accelerated, scenario,
+                    retain ? (trace_directory / "accelerated") : std::filesystem::path{}, retain);
             } else {
                 accelerated_result = timed_solve(
-                    accelerated, scenario, trace_directory / "accelerated", false);
+                    accelerated, scenario, std::filesystem::path{}, false);
                 baseline_result = timed_solve(
-                    baseline, scenario, trace_directory / "baseline", false);
+                    baseline, scenario, std::filesystem::path{}, false);
             }
             baseline_times.push_back(baseline_result.wall_us);
             accelerated_times.push_back(accelerated_result.wall_us);

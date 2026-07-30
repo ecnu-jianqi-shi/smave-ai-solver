@@ -819,12 +819,13 @@ double LearnedLinearPreconditionerExpert::ood_score(
 Estimate LearnedLinearPreconditionerExpert::estimate(
     const BlockIR&, const BlockContext& context) const {
     const double ood = ood_score(context);
+    const std::size_t dimension = artifact_.inverse_operator.size();
+    const double flops = static_cast<double>(dimension * dimension);
     return Estimate{
         .pass_probability = ood == 0.0 ? 0.98 : 0.0,
         .expected_setup_time_us = 0.2,
         .expected_solve_time_us = 0.5,
-        .expected_correction_time_us =
-            static_cast<double>(artifact_.inverse_operator.size()),
+        .expected_correction_time_us = 0.002 * flops,
         .failure_cost_us = 50.0,
         .risk_score = 0.0002 + ood,
         .ood_score = ood,
@@ -846,11 +847,26 @@ bool LearnedLinearPreconditionerExpert::apply_preconditioner(
     std::vector<double>& result) const {
     if (!match(block).linear || ood_score(context) != 0.0 ||
         residual.size() != artifact_.inverse_operator.size()) return false;
-    result.resize(residual.size());
-    for (std::size_t index = 0; index < residual.size(); ++index) {
-        result[index] = 0.0;
-        for (std::size_t column = 0; column < residual.size(); ++column) {
-            result[index] += artifact_.inverse_operator[index][column] * residual[column];
+    const std::size_t size = residual.size();
+    result.resize(size);
+#if defined(SMAVE_HAVE_ACCELERATE_SPARSE)
+    if (size <= static_cast<std::size_t>(std::numeric_limits<int>::max())) {
+        cblas_dgemv(
+            CblasRowMajor, CblasNoTrans,
+            static_cast<int>(size), static_cast<int>(size), 1.0,
+            contiguous_inverse_operator_.data(), static_cast<int>(size),
+            residual.data(), 1, 0.0, result.data(), 1);
+    } else
+#endif
+    {
+        const double* op = contiguous_inverse_operator_.data();
+        for (std::size_t index = 0; index < size; ++index) {
+            double sum = 0.0;
+            const double* row = op + index * size;
+            for (std::size_t column = 0; column < size; ++column) {
+                sum += row[column] * residual[column];
+            }
+            result[index] = sum;
         }
     }
     return std::all_of(result.begin(), result.end(), [](double value) {
@@ -1063,11 +1079,13 @@ double LearnedMultigridExpert::ood_score(const BlockContext& context) const {
 Estimate LearnedMultigridExpert::estimate(
     const BlockIR&, const BlockContext& context) const {
     const double ood = ood_score(context);
+    const std::size_t dimension = artifact_.fine_operator.size();
+    const double flops = static_cast<double>(dimension * dimension);
     return Estimate{
         .pass_probability = ood == 0.0 ? 0.96 : 0.0,
         .expected_setup_time_us = 0.5,
-        .expected_solve_time_us = static_cast<double>(artifact_.fine_operator.size()),
-        .expected_correction_time_us = static_cast<double>(artifact_.fine_operator.size()),
+        .expected_solve_time_us = 0.002 * flops,
+        .expected_correction_time_us = 0.002 * flops,
         .failure_cost_us = 50.0,
         .risk_score = artifact_.maximum_probe_contraction * 1.0e-3 + ood,
         .ood_score = ood,

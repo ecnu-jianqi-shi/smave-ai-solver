@@ -1,0 +1,22 @@
+SMAVE_JOINT_ROUTE_SCALING_ROUND51_PREFIRST_RUN_CONTRACT 1
+freeze_date=2026-07-29
+study=deterministic-production-dp-tractability
+scope=planning-only-no-numerical-solver-execution
+action_generation=fixed-formula
+measured_uniform_expert_counts=2,4,6,8,10,12,14,16
+preflight_uniform_expert_counts=18,20,22
+uniform_budgets_per_expert=2
+uniform_top_k=min(6,experts)
+production_shape_experts=3
+production_shape_budgets_per_expert=4
+production_shape_top_k=3
+conditional_transitions=complete-cross-expert
+terminal_cost_us=50
+maximum_joint_states=1000000
+primary_metrics=visited-states,recursive-transitions,memo-hits,terminal-states
+timing_claim=none
+immutable_v4_v5_v6_solver_execution=0
+cohort_search=0
+policy_tuning=0
+output_directory=build/release/joint-route-scaling-round51
+END

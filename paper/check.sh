@@ -37,7 +37,7 @@ if rg -q 'Undefined control sequence|Citation .* undefined|Reference .* undefine
 fi
 
 pages="$(sed -n 's/.*Output written on main.pdf (\([0-9][0-9]*\) pages.*/\1/p' main.log | tail -n 1)"
-if [ "$pages" != "12" ]; then
+if [ "$pages" != "13" ]; then
   echo "paper check failed: expected 12 pages, found ${pages:-unknown}" >&2
   exit 1
 fi

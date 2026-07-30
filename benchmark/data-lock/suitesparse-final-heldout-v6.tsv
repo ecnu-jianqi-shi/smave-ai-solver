@@ -1,0 +1,4 @@
+# split	numeric_class	scale_band	group	name	local_path	rows	columns	nonzeros	matrix_sha256
+heldout	spd	rows-5001-10000	ND	nd3k	benchmark/suitesparse/final-heldout-v6/nd3k/nd3k.mtx	9000	9000	3279690	8b30ad4a8f5439ed867b3a8f564cc9e835bbbc779c8e1048577d3dc74b87aefe
+heldout	symmetric-non-spd	rows-5001-10000	Grund	meg4	benchmark/suitesparse/final-heldout-v6/meg4/meg4.mtx	5860	5860	25258	e7df7b18d953ff04b8a47d830166effa1aaf4271afb3aa1224861b813e2be69a
+heldout	nonsymmetric	rows-5001-10000	Hollinger	g7jac020	benchmark/suitesparse/final-heldout-v6/g7jac020/g7jac020.mtx	5850	5850	42568	b6c2b0be0aebe76d004ca83669d961827197e429b9f49f8ad0a5618483a584a4

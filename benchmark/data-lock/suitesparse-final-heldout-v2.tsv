@@ -1,0 +1,7 @@
+# split	numeric_class	scale_band	group	name	local_path	rows	columns	nonzeros	matrix_sha256
+heldout	spd	rows-512-2047	JGD_Trefethen	Trefethen_700	benchmark/suitesparse/final-heldout-v2/Trefethen_700/Trefethen_700.mtx	700	700	12654	e1250831750c73ed7ae2771a10bdf9da0ba5d30afd94a2848605416ec78e0fa8
+heldout	symmetric-non-spd	rows-512-2047	VDOL	spaceShuttleEntry_1	benchmark/suitesparse/final-heldout-v2/spaceShuttleEntry_1/spaceShuttleEntry_1.mtx	560	560	6891	1109bc2d2c091496d585828258109493caff6ae87be1f072478690febbf6b778
+heldout	nonsymmetric	rows-512-2047	Rommes	M10PI_n1	benchmark/suitesparse/final-heldout-v2/M10PI_n1/M10PI_n1.mtx	528	528	1317	68952ccf425a897e695d1cc49e3c54da768ac3c27be81a7d355e8c824e47c79b
+heldout	spd	rows-2048-5000	Bates	Chem97ZtZ	benchmark/suitesparse/final-heldout-v2/Chem97ZtZ/Chem97ZtZ.mtx	2541	2541	7361	44a8ec791cea94745ed6da96a2e63d35e30ba5cbdecdf0aae7dc1a42420a84b2
+heldout	symmetric-non-spd	rows-2048-5000	Schenk_IBMNA	c-18	benchmark/suitesparse/final-heldout-v2/c-18/c-18.mtx	2169	2169	15145	711d92a8054c558f0c2e8a0dac4984ef68ab5373a896f5d430f07a23b5d1fde5
+heldout	nonsymmetric	rows-2048-5000	MathWorks	TS	benchmark/suitesparse/final-heldout-v2/TS/TS.mtx	2142	2142	45262	d6b0992fe647c1dc6c87ab70e1da2e93e8d99791cb3bdbc6b5ace86bf4e0caa2

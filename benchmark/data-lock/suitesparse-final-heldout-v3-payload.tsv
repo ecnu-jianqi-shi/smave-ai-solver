@@ -1,0 +1,7 @@
+# split	group	name	local_path	matrix_bytes	matrix_sha256
+heldout	JGD_BIBD	bibd_81_2	benchmark/suitesparse/final-heldout-v3/bibd_81_2/bibd_81_2.mtx	31242	83110a4c7ec632784f1910004f7d8edfe07455e8c86d1943836cb5e98b5e81fe
+heldout	Cannizzo	sts4098	benchmark/suitesparse/final-heldout-v3/sts4098/sts4098.mtx	1076662	a697ce8282771cb53e0b89537d87b39a7a4889fba101dd987e2636377227dda6
+heldout	JGD_SPG	EX1	benchmark/suitesparse/final-heldout-v3/EX1/EX1.mtx	34433	256bfdd9a313e566eef3d1d88868f6b403424fc92517a8e836b3cde21e3ab5cf
+heldout	TSOPF	TSOPF_FS_b9_c1	benchmark/suitesparse/final-heldout-v3/TSOPF_FS_b9_c1/TSOPF_FS_b9_c1.mtx	337243	d5269cfd69f994a7aa24a79c4360b91ac23c3dea1f07224dea9608a4bdceef3c
+heldout	JGD_Homology	ch5-5-b3	benchmark/suitesparse/final-heldout-v3/ch5-5-b3/ch5-5-b3.mtx	25439	61d10499e26a20784182331acadc59f50ffd2b56e6d6a6ff02c9d7f959e354fe
+heldout	Norris	heart2	benchmark/suitesparse/final-heldout-v3/heart2/heart2.mtx	19014497	37cbe4a5e947bda5563ec20ed8059fbca14d9dcd5ac1c2c858bd4e81420c69ff

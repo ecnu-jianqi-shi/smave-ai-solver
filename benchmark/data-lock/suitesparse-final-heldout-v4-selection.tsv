@@ -1,0 +1,4 @@
+# split	numeric_class	scale_band	selection_role	group	name	rows	columns	nonzeros	kind
+heldout	spd	rows-5001-10000	lowest-row-unseen-group	Cylshell	s3rmt3m3	5357	5357	207123	structural problem
+heldout	symmetric-non-spd	rows-5001-10000	lowest-row-unseen-group	Andrianov	fxm3_6	5026	5026	94026	optimization problem
+heldout	nonsymmetric	rows-5001-10000	lowest-row-unseen-group	CPM	cz5108	5108	5108	51412	2D/3D problem

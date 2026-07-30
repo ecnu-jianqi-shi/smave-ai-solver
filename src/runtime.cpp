@@ -677,6 +677,7 @@ void write_trace(
     const SolveOutcome& outcome,
     const std::unordered_map<std::string, double>& input,
     const std::filesystem::path& directory) {
+    if (directory.empty()) return;
     std::filesystem::create_directories(directory);
     std::ofstream output(directory / (outcome.trace_id + ".trace"));
     if (!output) throw std::runtime_error("cannot write trace");

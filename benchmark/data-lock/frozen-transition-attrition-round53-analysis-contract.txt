@@ -1,0 +1,23 @@
+SMAVE_FROZEN_TRANSITION_ATTRITION_ROUND53_ANALYSIS_CONTRACT 1
+analysis_date=2026-07-29
+analysis_mode=posthoc-frozen-observation-zero-execution-diagnostic
+inputs=v5-first-run-action-observations,v6-first-run-action-observations,v5-v6-frozen-models
+immutable_first_run_inputs=1
+v5_action_observations_sha256=38fc83ad2e1085b6141af71ec692de8e549dd59fe4148544e3f0f1a342662d90
+v5_model_sha256=247169f853c1b0f759bce171315aaae58d875635f90b26ce098276980b8962c6
+v6_action_observations_sha256=16a229d396f61338c523b4275bfb5b10708faa956b9c97d6f641c35ed0dd2270
+v6_model_sha256=2292577a61273288902fb42416ebc1f3627839a083379d662b48d9bc3856de24
+development_pair_input=round52-two-matrix-training-and-calibration-support
+candidate_rule=adjacent-actions-in-control-aware-training-plan-with-first-action-failed
+attrition_stages=isolated-development-support,modeled-alternatives,unguarded-top3-plan,unguarded-adjacent-first-failed,control-aware-final-plan,final-adjacent-first-failed
+family_anchor_rule=frozen-training-family-anchor-plus-global-fixed-guard
+heldout_role=excluded
+heldout_excluded_from_all_attrition_counts=1
+conditional_timing_inference=forbidden
+counterfactual_gain_inference=forbidden
+policy_tuning=0
+cohort_search=0
+solver_execution=0
+primary_outputs=evidence.txt,transition-attrition.tsv,candidate-transitions.tsv,v5-request-plans.tsv,v6-request-plans.tsv
+output_directory=build/release/frozen-transition-attrition-round53
+END

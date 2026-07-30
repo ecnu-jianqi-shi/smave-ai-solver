@@ -18,3 +18,10 @@ benchmark/nonlinear-algebraic/navier-stokes-steady/NavierStokesSteady2d_n183/
 benchmark/dae/transient-thermal/TransientThermal_n100000/
 benchmark/dae/reaction-diffusion-index1/ReactionDiffusionDae_n317/
 benchmark/modelica-derived/electrical-circuit/RcChain_n100000/
+
+# Large benchmark datasets (regenerate on demand; not needed for core repro / native-external workflow)
+benchmark/suitesparse/
+benchmark/pdebench/
+benchmark/cops/
+benchmark/multiphysics-msl/
+benchmark/petsc-ts/

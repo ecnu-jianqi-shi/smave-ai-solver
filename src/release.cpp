@@ -1171,10 +1171,15 @@ void verify_stored_release(
     const std::string& key) {
     const auto manifest = ReleaseManifest::read(directory / "release.manifest");
     const auto audit = ReleaseAudit::read(directory / "release.audit");
-    const auto bundle = RuntimeBundle::read(directory / "runtime.bundle");
+    const auto bundle_path = directory / "runtime.bundle";
+    if (!manifest.bundle_sha256.empty() &&
+        manifest.bundle_sha256 != sha256_file(bundle_path)) {
+        throw std::invalid_argument("release artifact digest binding failed");
+    }
+    const auto bundle = RuntimeBundle::read(bundle_path);
     verify_release_files(
         manifest, audit, bundle, key,
-        directory / "runtime.bundle", directory / "release.audit");
+        bundle_path, directory / "release.audit");
     verify_parent_audit(
         audit, std::filesystem::exists(directory / "parent.audit")
             ? directory / "parent.audit" : std::filesystem::path{});
@@ -1341,16 +1346,21 @@ VerifiedRelease ReleaseStore::verified_active(
     verify_state_authority(root_, state, key, false);
     const auto manifest = ReleaseManifest::read(directory / "release.manifest");
     const auto audit = ReleaseAudit::read(directory / "release.audit");
-    const auto bundle = RuntimeBundle::read(directory / "runtime.bundle");
+    const auto bundle_path = directory / "runtime.bundle";
+    if (!manifest.bundle_sha256.empty() &&
+        manifest.bundle_sha256 != sha256_file(bundle_path)) {
+        throw std::invalid_argument("release artifact digest binding failed");
+    }
+    const auto bundle = RuntimeBundle::read(bundle_path);
     verify_release_files(manifest, audit, bundle, key,
-        directory / "runtime.bundle", directory / "release.audit");
+        bundle_path, directory / "release.audit");
     verify_parent_audit(
         audit, std::filesystem::exists(directory / "parent.audit")
             ? directory / "parent.audit"
             : std::filesystem::path{});
     verify_payload_files(
         manifest,
-        directory / "runtime.bundle",
+        bundle_path,
         directory / "model.ir",
         std::filesystem::exists(directory / "expert.artifact")
             ? directory / "expert.artifact" : std::filesystem::path{},

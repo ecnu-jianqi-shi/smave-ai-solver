@@ -1,0 +1,7 @@
+# split	numeric_class	scale_band	selection_role	group	name	rows	columns	nonzeros	kind
+heldout	spd	rows-2048-5000	primary-large	JGD_BIBD	bibd_81_2	3240	3240	3240	combinatorial problem
+heldout	spd	rows-2048-5000	missing-small-substitute	Cannizzo	sts4098	4098	4098	72356	structural problem
+heldout	symmetric-non-spd	rows-512-2047	primary-small	JGD_SPG	EX1	560	560	8736	combinatorial problem
+heldout	symmetric-non-spd	rows-2048-5000	primary-large	TSOPF	TSOPF_FS_b9_c1	2454	2454	25032	power network problem
+heldout	nonsymmetric	rows-512-2047	primary-small	JGD_Homology	ch5-5-b3	600	600	2400	combinatorial problem
+heldout	nonsymmetric	rows-2048-5000	primary-large	Norris	heart2	2339	2339	680341	2D/3D problem

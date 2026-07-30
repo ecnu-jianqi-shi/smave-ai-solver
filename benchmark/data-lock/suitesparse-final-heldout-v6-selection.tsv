@@ -1,0 +1,4 @@
+# split	numeric_class	scale_band	selection_role	group	name	rows	columns	nonzeros	kind
+heldout	spd	rows-5001-10000	lowest-row-unseen-group	ND	nd3k	9000	9000	3279690	2D/3D problem
+heldout	symmetric-non-spd	rows-5001-10000	lowest-row-unseen-group	Grund	meg4	5860	5860	25258	circuit simulation problem
+heldout	nonsymmetric	rows-5001-10000	lowest-row-unseen-group	Hollinger	g7jac020	5850	5850	42568	economic problem

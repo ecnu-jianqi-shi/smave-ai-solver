@@ -1,0 +1,7 @@
+# split	numeric_class	scale_band	group	name	local_path	rows	columns	nonzeros	matrix_sha256
+heldout	spd	rows-2048-5000	JGD_BIBD	bibd_81_2	benchmark/suitesparse/final-heldout-v3/bibd_81_2/bibd_81_2.mtx	3240	3240	3240	83110a4c7ec632784f1910004f7d8edfe07455e8c86d1943836cb5e98b5e81fe
+heldout	spd	rows-2048-5000	Cannizzo	sts4098	benchmark/suitesparse/final-heldout-v3/sts4098/sts4098.mtx	4098	4098	72356	a697ce8282771cb53e0b89537d87b39a7a4889fba101dd987e2636377227dda6
+heldout	symmetric-non-spd	rows-512-2047	JGD_SPG	EX1	benchmark/suitesparse/final-heldout-v3/EX1/EX1.mtx	560	560	8736	256bfdd9a313e566eef3d1d88868f6b403424fc92517a8e836b3cde21e3ab5cf
+heldout	symmetric-non-spd	rows-2048-5000	TSOPF	TSOPF_FS_b9_c1	benchmark/suitesparse/final-heldout-v3/TSOPF_FS_b9_c1/TSOPF_FS_b9_c1.mtx	2454	2454	25032	d5269cfd69f994a7aa24a79c4360b91ac23c3dea1f07224dea9608a4bdceef3c
+heldout	nonsymmetric	rows-512-2047	JGD_Homology	ch5-5-b3	benchmark/suitesparse/final-heldout-v3/ch5-5-b3/ch5-5-b3.mtx	600	600	2400	61d10499e26a20784182331acadc59f50ffd2b56e6d6a6ff02c9d7f959e354fe
+heldout	nonsymmetric	rows-2048-5000	Norris	heart2	benchmark/suitesparse/final-heldout-v3/heart2/heart2.mtx	2339	2339	680341	37cbe4a5e947bda5563ec20ed8059fbca14d9dcd5ac1c2c858bd4e81420c69ff

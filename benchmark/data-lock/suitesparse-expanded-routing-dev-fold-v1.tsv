@@ -1,0 +1,42 @@
+SMAVE_SUITESPARSE_DEVELOPMENT_SPLIT 1
+# split group name relative_path numeric_class collection_positive_definite
+training Nasa nasa2910 small/nasa2910/nasa2910.mtx spd 1
+training Nasa nasa4704 small/nasa4704/nasa4704.mtx spd 1
+training HB saylr4 small/saylr4/saylr4.mtx symmetric-non-spd 0
+training HB impcol_e small/impcol_e/impcol_e.mtx nonsymmetric 0
+training HB west0479 small/west0479/west0479.mtx nonsymmetric 0
+training HB fs_541_1 small/fs_541_1/fs_541_1.mtx nonsymmetric 0
+training HB gre_1107 small/gre_1107/gre_1107.mtx nonsymmetric 0
+training HB orsreg_1 small/orsreg_1/orsreg_1.mtx nonsymmetric 0
+training Hamm add20 large/add20/add20.mtx nonsymmetric 0
+training Hamm add32 large/add32/add32.mtx nonsymmetric 0
+training Bates Chem97ZtZ final-heldout-v2/Chem97ZtZ/Chem97ZtZ.mtx spd 1
+training JGD_Trefethen Trefethen_700 final-heldout-v2/Trefethen_700/Trefethen_700.mtx spd 1
+training Schenk_IBMNA c-18 final-heldout-v2/c-18/c-18.mtx symmetric-non-spd 0
+training VDOL spaceShuttleEntry_1 final-heldout-v2/spaceShuttleEntry_1/spaceShuttleEntry_1.mtx symmetric-non-spd 0
+training Rommes M10PI_n1 final-heldout-v2/M10PI_n1/M10PI_n1.mtx nonsymmetric 0
+training MathWorks TS final-heldout-v2/TS/TS.mtx nonsymmetric 0
+training JGD_BIBD bibd_81_2 final-heldout-v3/bibd_81_2/bibd_81_2.mtx spd 1
+training Cannizzo sts4098 final-heldout-v3/sts4098/sts4098.mtx spd 1
+training JGD_SPG EX1 final-heldout-v3/EX1/EX1.mtx symmetric-non-spd 0
+training TSOPF TSOPF_FS_b9_c1 final-heldout-v3/TSOPF_FS_b9_c1/TSOPF_FS_b9_c1.mtx symmetric-non-spd 0
+training JGD_Homology ch5-5-b3 final-heldout-v3/ch5-5-b3/ch5-5-b3.mtx nonsymmetric 0
+training Norris heart2 final-heldout-v3/heart2/heart2.mtx nonsymmetric 0
+calibration Boeing msc00726 small/msc00726/msc00726.mtx spd 1
+calibration Boeing crystm01 small/crystm01/crystm01.mtx spd 1
+calibration Gset G10 large/G10/G10.mtx symmetric-non-spd 0
+calibration Gset G26 large/G26/G26.mtx symmetric-non-spd 0
+calibration Bai bfwb398 large/bfwb398/bfwb398.mtx symmetric-non-spd 0
+calibration Bai ck400 large/ck400/ck400.mtx nonsymmetric 0
+calibration Bai ck656 large/ck656/ck656.mtx nonsymmetric 0
+calibration Bai dw1024 large/dw1024/dw1024.mtx nonsymmetric 0
+calibration Bai dw256A large/dw256A/dw256A.mtx nonsymmetric 0
+calibration Bai rdb450 large/rdb450/rdb450.mtx nonsymmetric 0
+calibration Bai tols4000 large/tols4000/tols4000.mtx nonsymmetric 0
+heldout TKK plbuckle final-heldout-v1/plbuckle/plbuckle.mtx spd 1
+heldout FIDAP ex10 final-heldout-v1/ex10/ex10.mtx spd 1
+heldout PARSEC Si2 final-heldout-v1/Si2/Si2.mtx symmetric-non-spd 0
+heldout GHS_indef laser final-heldout-v1/laser/laser.mtx symmetric-non-spd 0
+heldout Morandini rotor2 final-heldout-v1/rotor2/rotor2.mtx nonsymmetric 0
+heldout Muite Chebyshev2 final-heldout-v1/Chebyshev2/Chebyshev2.mtx nonsymmetric 0
+END

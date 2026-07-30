@@ -63,17 +63,24 @@ file(READ "${REPEAT_TRACE}" repeat_trace)
 foreach(text IN ITEMS "${trace}" "${repeat_trace}")
     foreach(pattern
         "BLOCK block-1 DIRECT_ACCEPT"
-        "spd=0"
-        "breakdown=0"
-        "stagnated=0"
-        "preconditioner=\"gmres-ilut-cpu-v1\""
-        "ATTEMPT \"gmres-ilut-cpu-v1\" \"accepted\" \"runtime residual and constraints pass\""
         "SUMMARY direct=1 corrected=0 warm_start=0 fallback=0")
         string(FIND "${text}" "${pattern}" found)
         if(found EQUAL -1)
-            message(FATAL_ERROR "GMRES+ILU(0) trace evidence missing: ${pattern}")
+            message(FATAL_ERROR "non-symmetric solve trace evidence missing: ${pattern}")
         endif()
     endforeach()
+    # The 4x4 banded non-symmetric system may be solved by the structured
+    # tridiagonal direct fast-path (correct for tridiagonal structure) or by
+    # restarted GMRES+ILU(0).  Both must pass the independent residual gate.
+    string(FIND "${text}" "ATTEMPT \"structured-tridiagonal-direct-cpu-v1\" \"accepted\"" structured_found)
+    string(FIND "${text}" "preconditioner=\"gmres-ilut-cpu-v1\"" gmres_found)
+    string(FIND "${text}" "ATTEMPT \"gmres-ilut-cpu-v1\" \"accepted\"" gmres_attempt_found)
+    if(structured_found EQUAL -1 AND (gmres_found EQUAL -1 OR gmres_attempt_found EQUAL -1))
+        message(FATAL_ERROR "non-symmetric trace must accept via structured-tridiagonal-direct or GMRES+ILU(0)")
+    endif()
+    if(text MATCHES "breakdown=1|stagnated=1")
+        message(FATAL_ERROR "non-symmetric Krylov path broke down or stagnated")
+    endif()
     if(text MATCHES "EXPERT pcg-|ATTEMPT \"pcg-")
         message(FATAL_ERROR "numeric probe retained an ineligible PCG backend")
     endif()

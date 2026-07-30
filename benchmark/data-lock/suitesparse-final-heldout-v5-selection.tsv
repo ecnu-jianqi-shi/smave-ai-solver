@@ -1,0 +1,4 @@
+# split	numeric_class	scale_band	selection_role	group	name	rows	columns	nonzeros	kind
+heldout	spd	rows-5001-10000	lowest-row-unseen-group	Okunbor	aft01	8205	8205	125567	acoustics problem
+heldout	symmetric-non-spd	rows-5001-10000	lowest-row-unseen-group	Oberwolfach	rail_5177	5177	5177	35185	model reduction problem
+heldout	nonsymmetric	rows-5001-10000	lowest-row-unseen-group	Zitney	hydr1	5308	5308	22680	chemical process simulation problem

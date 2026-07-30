@@ -2155,11 +2155,11 @@ int main(int argc, char** argv) {
                     : 20,
                 std::stoul(*projected), {}, operator_device);
             if (scenario_input.dataset) {
-                report.schema_version = 2;
                 report.dataset_id = scenario_input.dataset->dataset_id;
                 report.dataset_version = scenario_input.dataset->version;
                 report.dataset_manifest_hash = scenario_input.dataset->manifest_hash;
                 report.seal();
+                report.validate();
             }
             smave::write_operator_benchmark_report(report, *output);
             std::cout << "requests: " << report.requests << '\n'

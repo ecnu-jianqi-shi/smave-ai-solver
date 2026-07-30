@@ -1,0 +1,4 @@
+# split	group	name	local_path	matrix_bytes	matrix_sha256
+heldout	Okunbor	aft01	benchmark/suitesparse/final-heldout-v5/aft01/aft01.mtx	1221454	6a36e951b9cc28ac8edb8f706ac06345572fe06f696c4ea77a7355724ce39c76
+heldout	Oberwolfach	rail_5177	benchmark/suitesparse/final-heldout-v5/rail_5177/rail_5177.mtx	622521	66f25ef768cd2ed9a76fb9177db651eeec5823bd4ceb53960fb39fc9ad8f0338
+heldout	Zitney	hydr1	benchmark/suitesparse/final-heldout-v5/hydr1/hydr1.mtx	473922	ec15f7fe32d2385a597a5670272faf5d6d31acb24fb5cbcbead698c4c8e0022c

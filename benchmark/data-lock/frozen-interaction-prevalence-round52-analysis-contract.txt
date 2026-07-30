@@ -1,0 +1,20 @@
+SMAVE_FROZEN_INTERACTION_PREVALENCE_ROUND52_ANALYSIS_CONTRACT 1
+analysis_date=2026-07-29
+analysis_mode=posthoc-frozen-observation-diagnostic
+inputs=v5-first-run-action-observations,v6-first-run-action-observations
+immutable_first_run_inputs=1
+aggregation=request-action-across-five-repetitions
+stable_failure=all-repetitions-failed-with-identical-status
+pair_definition=ordered-distinct-expert-actions
+training_support=at-least-two-independent-matrices
+calibration_support=at-least-two-independent-matrices
+development_supported_pair=training-support-and-calibration-support
+heldout_pair_role=diagnostic-only
+heldout_excluded_from_selection_and_calibration=1
+conditional_timing_inference=forbidden
+policy_tuning=0
+cohort_search=0
+solver_execution=0
+primary_metrics=request-coverage,pair-support,development-heldout-overlap,v5-v6-heldout-overlap
+output_directory=build/release/frozen-interaction-prevalence-round52
+END

@@ -1,25 +1,25 @@
 matrix	request	plan	attempt_index	phase	backend	budget	executed_iterations	status	wall_us	residual_inf
-nd3k	smooth-tol6	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	9950165.6669999994	8.0958330317404403e-13
-nd3k	smooth-tol10	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	9935519.125	8.0958330317404403e-13
-nd3k	oscillatory-tol6	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	10056725.083000001	1.3642420526593924e-12
-nd3k	oscillatory-tol10	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	10145951.375	1.3642420526593924e-12
-nd3k	sparse-tol6	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	9995153.75	1.0302869668521453e-13
-nd3k	sparse-tol10	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	9881951.1669999994	1.0302869668521453e-13
-nd3k	random-like-tol6	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	10118782.958000001	8.6686213762732223e-13
-nd3k	random-like-tol10	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	10293771.583000001	6.6791017161449417e-13
-meg4	smooth-tol6		0	terminal	gmres-ilu0-cpu-v1	250	1	accepted	1972.0840000000001	0.21741356514394283
-meg4	smooth-tol10		0	terminal	gmres-ilu0-cpu-v1	250	2	accepted	2928.375	8.7311491370201111e-10
-meg4	oscillatory-tol6		0	terminal	gmres-ilu0-cpu-v1	250	1	accepted	1727.1669999999999	9.9406974186422303e-05
-meg4	oscillatory-tol10		0	terminal	gmres-ilu0-cpu-v1	250	2	accepted	2165.9580000000001	5.2459654398262501e-09
-meg4	sparse-tol6		0	terminal	gmres-ilu0-cpu-v1	250	1	accepted	1630.4169999999999	3.637978807091713e-12
-meg4	sparse-tol10		0	terminal	gmres-ilu0-cpu-v1	250	1	accepted	1309.875	3.637978807091713e-12
-meg4	random-like-tol6		0	terminal	gmres-ilu0-cpu-v1	250	1	accepted	1204.9590000000001	0.058812454051803797
-meg4	random-like-tol10		0	terminal	gmres-ilu0-cpu-v1	250	2	accepted	1281.5419999999999	8.149072527885437e-10
-g7jac020	smooth-tol6	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	45830.040999999997	1.1175870895385742e-08
-g7jac020	smooth-tol10	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	51119.207999999999	1.1175870895385742e-08
-g7jac020	oscillatory-tol6	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	43142.75	5.9273290919578669e-09
-g7jac020	oscillatory-tol10	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	42476.542000000001	5.9273290919578669e-09
-g7jac020	sparse-tol6	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	44072.292000000001	4.6566128730773926e-10
-g7jac020	sparse-tol10	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	54549.042000000001	4.6566128730773926e-10
-g7jac020	random-like-tol6	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	58840.042000000001	4.5876722420956639e-09
-g7jac020	random-like-tol10	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	49977.875	2.3389641334858879e-09
+nd3k	smooth-tol6	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	8222919.5829999996	8.0958330317404403e-13
+nd3k	smooth-tol10	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	8239993.8339999998	8.0958330317404403e-13
+nd3k	oscillatory-tol6	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	8230513.4589999998	1.3642420526593924e-12
+nd3k	oscillatory-tol10	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	8324754.875	1.3642420526593924e-12
+nd3k	sparse-tol6	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	8247631.1670000004	1.0302869668521453e-13
+nd3k	sparse-tol10	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	8231284.4170000004	1.0302869668521453e-13
+nd3k	random-like-tol6	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	8240096.875	8.6686213762732223e-13
+nd3k	random-like-tol10	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	8208970.3329999996	6.6791017161449417e-13
+meg4	smooth-tol6	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	9939.9169999999995	4.9476511776447296e-10
+meg4	smooth-tol10	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	11527.208000000001	4.9476511776447296e-10
+meg4	oscillatory-tol6	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	11984	2.0008883439004421e-11
+meg4	oscillatory-tol10	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	11738.208000000001	2.0008883439004421e-11
+meg4	sparse-tol6	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	9595.625	7.2759576141834259e-12
+meg4	sparse-tol10	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	9477	7.2759576141834259e-12
+meg4	random-like-tol6	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	9435.875	1.8189894035458565e-11
+meg4	random-like-tol10	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	9586.5409999999993	5.8207660913467407e-11
+g7jac020	smooth-tol6	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	39581.332999999999	1.1175870895385742e-08
+g7jac020	smooth-tol10	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	39232.875	1.1175870895385742e-08
+g7jac020	oscillatory-tol6	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	39456.082999999999	5.9273290919578669e-09
+g7jac020	oscillatory-tol10	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	39112.75	5.9273290919578669e-09
+g7jac020	sparse-tol6	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	39043.082999999999	4.6566128730773926e-10
+g7jac020	sparse-tol10	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	38711.290999999997	4.6566128730773926e-10
+g7jac020	random-like-tol6	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	38754.292000000001	4.5876722420956639e-09
+g7jac020	random-like-tol10	superlu-dgssv-cpu-v1@0	0	planned	superlu-dgssv-cpu-v1	0	0	accepted	39180.542000000001	2.3389641334858879e-09

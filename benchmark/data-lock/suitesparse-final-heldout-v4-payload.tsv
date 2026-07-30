@@ -1,0 +1,4 @@
+# split	group	name	local_path	matrix_bytes	matrix_sha256
+heldout	Cylshell	s3rmt3m3	benchmark/suitesparse/final-heldout-v4/s3rmt3m3/s3rmt3m3.mtx	3056489	dad2e75d12c7ae8d6cd96fca5bccbe2bf7e7fd67652e6b3ced89502678a8917e
+heldout	Andrianov	fxm3_6	benchmark/suitesparse/final-heldout-v4/fxm3_6/fxm3_6.mtx	468465	35a7efc3a017c44d5b87229d14dfa4675263eea06c9f518c1a656f0548d7acba
+heldout	CPM	cz5108	benchmark/suitesparse/final-heldout-v4/cz5108/cz5108.mtx	1470434	27ee736188cdfbb08ebfc160d78d6c91812a9ef016e741b68c75b3c00a56cbf8

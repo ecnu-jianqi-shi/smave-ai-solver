@@ -1,12 +1,12 @@
 SMAVE_LARGE_SPARSE_EVIDENCE 2
 FAMILY poisson-2d-five-point
 SCALES 3
-SCALE width=33 unknowns=1089 nnz=5313 dense_bytes=9487368 csr_bytes=93728 compile_us=173108 assemble_us=1156.88 setup_us=109.583 solve_us=539.5 iterations=31 final_residual=5.48098e-09
-SCALE width=41 unknowns=1681 nnz=8241 dense_bytes=22606088 csr_bytes=145312 compile_us=366657 assemble_us=1700.38 setup_us=139.5 solve_us=1033.04 iterations=38 final_residual=6.83713e-09
-SCALE width=49 unknowns=2401 nnz=11809 dense_bytes=46118408 csr_bytes=208160 compile_us=808780 assemble_us=2582.58 setup_us=204.875 solve_us=1719.75 iterations=45 final_residual=5.25315e-09
+SCALE width=33 unknowns=1089 nnz=5313 dense_bytes=9487368 csr_bytes=93728 compile_us=161682 assemble_us=1516.62 setup_us=104.833 solve_us=522.75 iterations=31 final_residual=5.48098e-09
+SCALE width=41 unknowns=1681 nnz=8241 dense_bytes=22606088 csr_bytes=145312 compile_us=327112 assemble_us=1545.88 setup_us=126.166 solve_us=969.166 iterations=38 final_residual=6.83713e-09
+SCALE width=49 unknowns=2401 nnz=11809 dense_bytes=46118408 csr_bytes=208160 compile_us=718806 assemble_us=2247.58 setup_us=177.958 solve_us=1644.71 iterations=45 final_residual=5.25315e-09
 RUNTIME_REPETITIONS 32
-RUNTIME_MEDIAN_US 8678.42
-RUNTIME_P99_US 16768.7
+RUNTIME_MEDIAN_US 7534.21
+RUNTIME_P99_US 10786.8
 RUNTIME_EXPERT pcg-jacobi-cpu-v1
 RUNTIME_GATE_DECISION direct_accept
 RUNTIME_GATE_SCALED_RESIDUAL 0.0528967

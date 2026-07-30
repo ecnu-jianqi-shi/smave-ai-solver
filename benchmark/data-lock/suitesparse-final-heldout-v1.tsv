@@ -1,0 +1,7 @@
+# split	numeric_class	scale_band	group	name	local_path	rows	columns	nonzeros	matrix_sha256
+heldout	spd	rows-512-2047	TKK	plbuckle	benchmark/suitesparse/final-heldout-v1/plbuckle/plbuckle.mtx	1282	1282	30644	773dcac37581d7625ce6751f82a4fad289d8941adce9a942b8cf27bc0b1c0898
+heldout	symmetric-non-spd	rows-512-2047	PARSEC	Si2	benchmark/suitesparse/final-heldout-v1/Si2/Si2.mtx	769	769	17801	160b437776dcb56d0d409934c072d64594f6ab3ee4cdf55d5bcb0758e1d81c7c
+heldout	nonsymmetric	rows-512-2047	Morandini	rotor2	benchmark/suitesparse/final-heldout-v1/rotor2/rotor2.mtx	791	791	10685	4f2219ba2639de91bdf3ac59361463c364a97293e35a6bcfc6a5600c075d1f05
+heldout	spd	rows-2048-5000	FIDAP	ex10	benchmark/suitesparse/final-heldout-v1/ex10/ex10.mtx	2410	2410	54840	739b5ca36e6b09fe8f652223e0d47ebf8783c7509ca1aed4c7d3a113e5d01b1e
+heldout	symmetric-non-spd	rows-2048-5000	GHS_indef	laser	benchmark/suitesparse/final-heldout-v1/laser/laser.mtx	3002	3002	9000	6efa2748afd46a427eb7339aba7d80ff8bc4348a98f0438e8d406d8a7778d8a1
+heldout	nonsymmetric	rows-2048-5000	Muite	Chebyshev2	benchmark/suitesparse/final-heldout-v1/Chebyshev2/Chebyshev2.mtx	2053	2053	18447	094f554dc8771f8f1a2e8c2cc469b02ccada0c6e0529dde2397565b2be7e49ca

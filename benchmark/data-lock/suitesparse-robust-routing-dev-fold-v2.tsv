@@ -1,0 +1,31 @@
+SMAVE_SUITESPARSE_DEVELOPMENT_SPLIT 1
+# split group name relative_path numeric_class collection_positive_definite
+training Boeing msc00726 small/msc00726/msc00726.mtx spd 1
+training Boeing crystm01 small/crystm01/crystm01.mtx spd 1
+training Nasa nasa2910 small/nasa2910/nasa2910.mtx spd 1
+calibration Bai bfwb398 large/bfwb398/bfwb398.mtx symmetric-non-spd 0
+training Gset G10 large/G10/G10.mtx symmetric-non-spd 0
+training HB saylr4 small/saylr4/saylr4.mtx symmetric-non-spd 0
+training HB impcol_e small/impcol_e/impcol_e.mtx nonsymmetric 0
+training HB west0479 small/west0479/west0479.mtx nonsymmetric 0
+calibration Bai ck400 large/ck400/ck400.mtx nonsymmetric 0
+calibration Bai dw256A large/dw256A/dw256A.mtx nonsymmetric 0
+training TKK plbuckle final-heldout-v1/plbuckle/plbuckle.mtx spd 1
+training FIDAP ex10 final-heldout-v1/ex10/ex10.mtx spd 1
+training PARSEC Si2 final-heldout-v1/Si2/Si2.mtx symmetric-non-spd 0
+training GHS_indef laser final-heldout-v1/laser/laser.mtx symmetric-non-spd 0
+training Morandini rotor2 final-heldout-v1/rotor2/rotor2.mtx nonsymmetric 0
+training Muite Chebyshev2 final-heldout-v1/Chebyshev2/Chebyshev2.mtx nonsymmetric 0
+calibration JGD_BIBD bibd_81_2 final-heldout-v3/bibd_81_2/bibd_81_2.mtx spd 1
+calibration Cannizzo sts4098 final-heldout-v3/sts4098/sts4098.mtx spd 1
+calibration JGD_SPG EX1 final-heldout-v3/EX1/EX1.mtx symmetric-non-spd 0
+calibration TSOPF TSOPF_FS_b9_c1 final-heldout-v3/TSOPF_FS_b9_c1/TSOPF_FS_b9_c1.mtx symmetric-non-spd 0
+calibration JGD_Homology ch5-5-b3 final-heldout-v3/ch5-5-b3/ch5-5-b3.mtx nonsymmetric 0
+calibration Norris heart2 final-heldout-v3/heart2/heart2.mtx nonsymmetric 0
+heldout Bates Chem97ZtZ final-heldout-v2/Chem97ZtZ/Chem97ZtZ.mtx spd 1
+heldout JGD_Trefethen Trefethen_700 final-heldout-v2/Trefethen_700/Trefethen_700.mtx spd 1
+heldout Schenk_IBMNA c-18 final-heldout-v2/c-18/c-18.mtx symmetric-non-spd 0
+heldout VDOL spaceShuttleEntry_1 final-heldout-v2/spaceShuttleEntry_1/spaceShuttleEntry_1.mtx symmetric-non-spd 0
+heldout Rommes M10PI_n1 final-heldout-v2/M10PI_n1/M10PI_n1.mtx nonsymmetric 0
+heldout MathWorks TS final-heldout-v2/TS/TS.mtx nonsymmetric 0
+END
