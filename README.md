@@ -218,7 +218,7 @@ FMI 2.0 缺失 `lastSuccessfulTime` 的内部事件、运行期连续状态维�
 
 ## 构建与运行
 
-### 原生外部性能工作流（尚无托管运行）
+### 原生外部性能工作流（已完成首次托管运行）
 
 仓库现提供手动触发的 GitHub Actions 工作流
 `.github/workflows/native-external-performance.yml`，用于在三个独立
@@ -230,10 +230,18 @@ artifact attestation。上传前还会由独立 campaign verifier 从三个下�
 重建 exact schema、replicate hash/metadata、共同 provenance 与全部跨 job 统计；
 该 verifier 明确不能代替对后续 GitHub attestation 成功状态的外部核验。
 
-截至 **2026-07-25**，这里只完成了本机 ARM64 dry-run；其证据强制写入
-`performance_evidence=0` 与 `native_external_performance=0`。当前仓库没有可用
-commit、remote 或可执行 GitHub workflow 的凭据，因此尚不存在真正的托管
-x86-64 性能证据，论文分数和主张均不得据此上调。协议、命令和非主张边界见
+截至 **2026-07-31**，该工作流已在 `ecnu-jianqi-shi/smave-ai-solver` 上通过
+`workflow_dispatch` 成功完成首次托管运行（run_id `30580876298`）。三个独立
+`ubuntu-24.04` GitHub-hosted job 分别运行在 Intel Xeon Platinum 8573C、AMD EPYC 7763
+与 AMD EPYC 9V74 x86-64 VM 上，证据写入 `provider=github-hosted`、
+`external_provider=1`、`performance_evidence=1` 与 `provider_hosted_vm=1`，并绑定
+完整 commit/run/job/workflow 来源、SHA-256 与 artifact attestation。聚合证据与全部
+原始 replicate 位于
+`build/release/native-external-performance/github-hosted/`，独立 campaign verifier
+返回 `SMAVE_NATIVE_EXTERNAL_PERFORMANCE_CAMPAIGN_CHECK 1`。该托管证据只覆盖自包含
+gate 与完整路径 fixture，不外推为客户 workload、PDEBench payload、加速器或 NUMA
+性能；本机 ARM64 dry-run 仍保留为协议自检（`performance_evidence=0`）。协议、命令
+和非主张边界见
 [`docs/NATIVE_EXTERNAL_PERFORMANCE.md`](docs/NATIVE_EXTERNAL_PERFORMANCE.md)。
 
 当前本机线程 gate 证据在十个 worker 下达到 `3.514× [3.295, 3.905]` 与 `2.403× [2.171, 2.458]`，分别对应线性与非线性 family；决策和 residual 与顺序 gate 一致。该结果只描述 gate kernel，并不替代完整 verified-path scaling。

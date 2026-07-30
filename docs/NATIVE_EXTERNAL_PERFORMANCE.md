@@ -4,9 +4,14 @@ This campaign is a fail-closed enabler for performance measurements on GitHub-ho
 Ubuntu/x86-64 virtual machines. It does not convert local measurements, Docker runs,
 or emulated x86-64 correctness checks into external performance evidence.
 
-As of **2026-07-25**, the repository contains the workflow and a passing local dry-run,
-but no GitHub-hosted campaign has been executed. Consequently, no reviewed manuscript
-claim or review score may rely on native external performance yet.
+As of **2026-07-31**, the workflow has completed its first successful GitHub-hosted
+campaign on `ecnu-jianqi-shi/smave-ai-solver` (run_id `30580876298`): three independent
+`ubuntu-24.04` x86-64 jobs on Intel Xeon Platinum 8573C, AMD EPYC 7763, and AMD EPYC
+9V74 runners, with aggregation, upload, and artifact attestation all succeeding. The
+campaign verifier returns `SMAVE_NATIVE_EXTERNAL_PERFORMANCE_CAMPAIGN_CHECK 1`. The
+hosted evidence covers only the self-contained gate and complete-path fixtures; it does
+not extend to customer workloads, PDEBench payloads, accelerators, or NUMA performance.
+A local dry-run remains available as a protocol self-check.
 
 ## Hosted workflow
 

@@ -1,0 +1,28 @@
+name: diag-dae-probe
+on:
+  push:
+    paths:
+      - '.github/workflows/diag-dae-probe.yml'
+  workflow_dispatch:
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: deps
+        run: sudo apt-get update && sudo apt-get install -y zlib1g-dev
+      - name: configure
+        run: cmake -S . -B build/release -DCMAKE_BUILD_TYPE=Release -DSMAVE_CORE_REPRO_BUNDLE=ON
+      - name: build probe
+        run: cmake --build build/release --target smave_c_api_dae_service_probe -j2
+      - name: run probe with full output
+        run: |
+          set +e
+          ./build/release/smave_c_api_dae_service_probe > probe-out.txt 2> probe-err.txt
+          echo "EXIT=$?"
+          echo "===STDOUT==="
+          cat probe-out.txt
+          echo "===STDERR==="
+          cat probe-err.txt
+          echo "===pow check==="
+          python3 -c "import math; s=0.38554328942953187; p=math.pow(1.0/1.1,10.0); print('sol=',s,'pow=',p,'diff=',abs(s-p))"
