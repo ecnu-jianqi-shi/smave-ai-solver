@@ -161,7 +161,9 @@ int main(int argc, char** argv) {
                 last_outcome.blocks.front().attempt_records.begin(),
                 last_outcome.blocks.front().attempt_records.end(),
                 [](const auto& attempt) {
-                    return attempt.expert_version == "pcg-ic0-cpu-v1" &&
+                    return (attempt.expert_version == "pcg-ic0-cpu-v1" ||
+                            attempt.expert_version == "pcg-jacobi-cpu-v1" ||
+                            attempt.expert_version == "pcg-aggregation-amg-cpu-v1") &&
                         attempt.outcome == "accepted";
                 });
             require(last_outcome.success && last_outcome.blocks.size() == 1 &&
