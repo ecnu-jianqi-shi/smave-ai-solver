@@ -181,7 +181,7 @@ Modelica、Simulink、FMI、SSP 和复杂 hybrid semantics 只在它们产生新
 |---|---|---|---|---|---|
 | `D-P0-1` | correction-budget sweep、成本耦合、break-even | `G1/G2` | `REQ-CORR-001`、`REQ-COST-001` | `calibrated-correction-router`、`joint-route-budget-shift`、`complete-cost-decomposition` | `EVIDENCE-COMPLETE` |
 | `D-P0-2` | shift calibration、complete-cost regret、OOD 结构过滤 | `G3` | `REQ-SHIFT-001`、`REQ-OOD-STRUCT-001` | `router-shift`、`router-shift-matrix`、`joint-route-budget-shift`、`structural-ood-filter`、公共 SuiteSparse route | `EVIDENCE-COMPLETE` |
-| `D-P0-3` | 外部 hybrid baseline、native x86-64/CUDA | `G5` | `REQ-EXT-BASE-001`、`REQ-NATIVE-X86-001`、`REQ-NATIVE-CUDA-001` | HINTS native baseline、hosted x86 workflow、native CUDA campaign | `CUDA-DONE-X86-PENDING` |
+| `D-P0-3` | 外部 hybrid baseline、native x86-64/CUDA | `G5` | `REQ-EXT-BASE-001`、`REQ-NATIVE-X86-001`、`REQ-NATIVE-CUDA-001` | HINTS native baseline、hosted x86 workflow、native CUDA campaign | `EVIDENCE-COMPLETE` |
 | `D-P0-4` | workload 扩展、full-path parallel、batch、placement | `G4/G5` | `REQ-WORKLOAD-001`、`REQ-FULLPATH-PAR-001`、`REQ-BATCH-001`、`REQ-PLACEMENT-001` | large sparse/nonlinear/DAE/operator、parallel、batch、device reports | `EVIDENCE-COMPLETE` |
 
 ## 6. 范围边界

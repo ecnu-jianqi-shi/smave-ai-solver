@@ -4727,7 +4727,9 @@ FmiSmokeResult smoke_fmi3_model_exchange(
             clock_input_values.push_back(exact_boolean_input(value, name));
         }
     }
-    for (const auto& [name, values] : array_inputs) {
+    for (const auto& array_input : array_inputs) {
+        const auto& name = array_input.first;
+        const auto& values = array_input.second;
         const auto iterator = std::find_if(
             model.variables.begin(), model.variables.end(), [&](const auto& variable) {
                 return variable.name == name;
@@ -4828,7 +4830,9 @@ FmiSmokeResult smoke_fmi3_model_exchange(
         binary_input_sizes.push_back(value.size());
         binary_input_values.push_back(value.empty() ? nullptr : value.data());
     }
-    for (const auto& [name, values] : string_array_inputs) {
+    for (const auto& array_input : string_array_inputs) {
+        const auto& name = array_input.first;
+        const auto& values = array_input.second;
         const auto iterator = std::find_if(
             model.variables.begin(), model.variables.end(), [&](const auto& variable) {
                 return variable.name == name;
@@ -4850,7 +4854,9 @@ FmiSmokeResult smoke_fmi3_model_exchange(
             static_cast<Fmi3ValueReference>(iterator->value_reference));
         for (const auto& value : values) string_array_input_values.push_back(value.c_str());
     }
-    for (const auto& [name, values] : binary_array_inputs) {
+    for (const auto& array_input : binary_array_inputs) {
+        const auto& name = array_input.first;
+        const auto& values = array_input.second;
         const auto iterator = std::find_if(
             model.variables.begin(), model.variables.end(), [&](const auto& variable) {
                 return variable.name == name;
