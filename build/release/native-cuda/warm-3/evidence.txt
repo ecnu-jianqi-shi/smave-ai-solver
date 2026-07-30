@@ -1,0 +1,23 @@
+NATIVE_CUDA_DEVICE_EVIDENCE_V1
+cuda_device_available=1
+cuda_device_name=NVIDIA GB10
+cuda_affine_backend=cuda-affine-batch-gpu-v1
+cuda_affine_executed=1
+cuda_affine_verified=1
+cuda_affine_upload_us=42.786
+cuda_affine_kernel_us=91.603
+cuda_affine_download_us=14.512
+cuda_affine_max_abs_error=0
+cuda_affine_max_rel_error=0
+cuda_stencil_backend=cuda-fused-weighted-jacobi-2d-fp32-v1
+cuda_stencil_executed=1
+cuda_stencil_verified=1
+cuda_stencil_batch=2
+cuda_stencil_width=8
+cuda_stencil_iterations=2000
+cuda_stencil_setup_us=154.166
+cuda_stencil_kernel_us=412.446
+cuda_stencil_download_us=11.2
+cuda_stencil_max_rel_residual=1.90735e-06
+cuda_invalid_shape_rejected=1
+END

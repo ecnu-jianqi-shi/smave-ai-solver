@@ -2673,6 +2673,20 @@ if(APPLE)
     )
 endif()
 
+if(DEFINED SMAVE_CUDA_TOOLKIT_ROOT)
+    set(SMAVE_NATIVE_CUDA_CAMPAIGN_DIR
+        "${CMAKE_CURRENT_BINARY_DIR}/native-cuda")
+    add_custom_target(reproduce-native-cuda-campaign
+        COMMAND ${CMAKE_COMMAND} -E env
+            SMAVE_CUDA_TOOLKIT_ROOT=${SMAVE_CUDA_TOOLKIT_ROOT}
+            ${CMAKE_CURRENT_SOURCE_DIR}/benchmark/run_native_cuda_campaign.sh
+            --build "${SMAVE_NATIVE_CUDA_CAMPAIGN_DIR}/build"
+            --output "${SMAVE_NATIVE_CUDA_CAMPAIGN_DIR}/campaign"
+            --replicate-id 1
+        USES_TERMINAL
+        VERBATIM)
+endif()
+
 add_custom_target(reproduce-nonsymmetric
     COMMAND ${CMAKE_COMMAND} -E rm -rf "${SMAVE_NONSYMMETRIC_DIR}"
     COMMAND ${CMAKE_COMMAND} -E make_directory
