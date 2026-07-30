@@ -1,0 +1,4 @@
+family	matrix	request	order	isolated_sum_us	combined_sum_us	interaction_delta	first_status	second_status
+pcg	nd3k	random-like-tol10	pcg-ic0-cpu-v1@1,pcg-jacobi-cpu-v1@1	324166	339186	0.0463364	solver-failed	gate-rejected
+pcg	nd3k	random-like-tol10	pcg-jacobi-cpu-v1@1,pcg-ic0-cpu-v1@1	324166	310628	-0.0417632	gate-rejected	solver-failed
+gmres	-	-	unavailable	0	0	0	no-two-failed-actions	no-two-failed-actions

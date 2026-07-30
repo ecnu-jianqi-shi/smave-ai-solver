@@ -1,0 +1,4 @@
+family	training_anchor	global_fixed	independent_calibration_groups	mean_group_cost_ratio	median_group_cost_ratio	maximum_group_cost_ratio	specialized_enabled	guarded_anchor	group_cost_ratios
+nonsymmetric	superlu-dgssv-cpu-v1@0	superlu-dgssv-cpu-v1@0	2	1	1	1	0	superlu-dgssv-cpu-v1@0	1,1
+spd	superlu-dgssv-cpu-v1@0	superlu-dgssv-cpu-v1@0	1	1	1	1	0	superlu-dgssv-cpu-v1@0	1
+symmetric-indefinite	terminal	superlu-dgssv-cpu-v1@0	1	0.38774524524061194	0.38774524524061194	0.38774524524061194	0	superlu-dgssv-cpu-v1@0	0.38774524524061194

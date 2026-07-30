@@ -1,0 +1,4 @@
+family	independent_calibration_groups	mean_group_cost_ratio	median_group_cost_ratio	maximum_group_cost_ratio	adaptive_enabled	group_cost_ratios
+nonsymmetric	2	1	1	1	0	1,1
+spd	1	1	1	1	0	1
+symmetric-indefinite	1	1	1	1	0	1
