@@ -1,0 +1,15 @@
+SMAVE_SUITESPARSE_MATRIX_SPLIT 1
+training	Boeing	msc00726	small/msc00726/msc00726.mtx	spd
+training	Boeing	crystm01	small/crystm01/crystm01.mtx	spd
+training	Bai	bfwb398	large/bfwb398/bfwb398.mtx	symmetric-non-spd
+training	HB	saylr4	small/saylr4/saylr4.mtx	symmetric-non-spd
+training	HB	impcol_e	small/impcol_e/impcol_e.mtx	nonsymmetric
+training	HB	west0479	small/west0479/west0479.mtx	nonsymmetric
+calibration	Nasa	nasa2910	small/nasa2910/nasa2910.mtx	spd
+calibration	Gset	G10	large/G10/G10.mtx	symmetric-non-spd
+calibration	Bai	ck400	large/ck400/ck400.mtx	nonsymmetric
+calibration	Bai	dw256A	large/dw256A/dw256A.mtx	nonsymmetric
+heldout	ND	nd3k	final-heldout-v6/nd3k/nd3k.mtx	spd
+heldout	Grund	meg4	final-heldout-v6/meg4/meg4.mtx	symmetric-non-spd
+heldout	Hollinger	g7jac020	final-heldout-v6/g7jac020/g7jac020.mtx	nonsymmetric
+END
