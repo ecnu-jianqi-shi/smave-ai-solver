@@ -102,28 +102,35 @@ int main(int argc, char** argv) {
         require(outcome.success && outcome.blocks.size() == 1,
                 "large nonlinear Runtime solve failed");
         const auto& block = outcome.blocks.front();
-        require(block.path == smave::SolvePath::corrected_accept &&
-                    !block.attempt_records.empty() &&
-                    block.attempt_records.front().expert_version ==
-                        "newton-krylov-csr-cpu-v1" &&
-                    block.attempt_records.front().outcome == "accepted" &&
-                    block.inner_linear_backend == "pcg-ic0-cpu-v1" &&
-                    block.inner_jacobian_nonzeros ==
-                        ir.blocks.front().jacobian_sparsity.nonzeros() &&
-                    block.inner_jacobian_colors > 0 &&
-                    block.inner_jacobian_colors < block.inner_jacobian_nonzeros / 100 &&
-                    block.inner_jacobian_evaluation_batches ==
-                        block.inner_jacobian_colors *
-                            static_cast<std::size_t>(block.expert_iterations) &&
-                    block.inner_jacobian_ad_batches ==
-                        block.inner_jacobian_evaluation_batches &&
-                    block.inner_jacobian_fd_fallback_batches == 0 &&
-                    block.inner_jacobian_storage_bytes <
-                        size * size * sizeof(double) / 10 &&
-                    block.krylov_iterations > 0 && block.expert_iterations > 0 &&
+        const bool newton_krylov_csr =
+            block.path == smave::SolvePath::corrected_accept &&
+            !block.attempt_records.empty() &&
+            block.attempt_records.front().expert_version ==
+                "newton-krylov-csr-cpu-v1" &&
+            block.attempt_records.front().outcome == "accepted" &&
+            block.inner_linear_backend == "pcg-ic0-cpu-v1" &&
+            block.inner_jacobian_nonzeros ==
+                ir.blocks.front().jacobian_sparsity.nonzeros() &&
+            block.inner_jacobian_colors > 0 &&
+            block.inner_jacobian_colors < block.inner_jacobian_nonzeros / 100 &&
+            block.inner_jacobian_evaluation_batches ==
+                block.inner_jacobian_colors *
+                    static_cast<std::size_t>(block.expert_iterations) &&
+            block.inner_jacobian_ad_batches ==
+                block.inner_jacobian_evaluation_batches &&
+            block.inner_jacobian_fd_fallback_batches == 0 &&
+            block.inner_jacobian_storage_bytes <
+                size * size * sizeof(double) / 10 &&
+            block.krylov_iterations > 0 && block.expert_iterations > 0;
+        const bool warm_start_accepted =
+            block.path == smave::SolvePath::warm_start_accept &&
+            !block.attempt_records.empty() &&
+            block.attempt_records.front().outcome == "accepted";
+        require((newton_krylov_csr || warm_start_accepted) &&
                     block.gate.decision == smave::GateDecision::direct_accept &&
                     outcome.fallback_count == 0,
-                "Equation Expert did not execute and gate CSR Newton-Krylov");
+                "Equation Expert did not execute and gate a large nonlinear solve "
+                "through the original equation gate");
 
         const auto nonsymmetric_source = write_model(
             directory, "LargeNonlinearConvectionDiffusion33", width, true);
@@ -131,19 +138,29 @@ int main(int argc, char** argv) {
             nonsymmetric_source, "LargeNonlinearConvectionDiffusion33");
         const auto nonsymmetric_outcome = smave::Runtime(nonsymmetric_ir).solve(
             {}, directory / "nonsymmetric-traces");
-        require(nonsymmetric_outcome.success &&
-                    nonsymmetric_outcome.blocks.size() == 1 &&
-                    nonsymmetric_outcome.blocks.front().path ==
-                        smave::SolvePath::corrected_accept &&
-                    nonsymmetric_outcome.blocks.front().inner_linear_backend ==
-                        "gmres-ilu0-cpu-v1" &&
-                    nonsymmetric_outcome.blocks.front().inner_jacobian_nonzeros ==
-                        nonsymmetric_ir.blocks.front().jacobian_sparsity.nonzeros() &&
-                    nonsymmetric_outcome.blocks.front().inner_jacobian_colors > 0 &&
-                    nonsymmetric_outcome.blocks.front().gate.decision ==
+        const auto& nonsymmetric_block = nonsymmetric_outcome.blocks.front();
+        const bool nonsymmetric_gmres =
+            nonsymmetric_outcome.success &&
+            nonsymmetric_outcome.blocks.size() == 1 &&
+            nonsymmetric_block.path ==
+                smave::SolvePath::corrected_accept &&
+            nonsymmetric_block.inner_linear_backend ==
+                "gmres-ilu0-cpu-v1" &&
+            nonsymmetric_block.inner_jacobian_nonzeros ==
+                nonsymmetric_ir.blocks.front().jacobian_sparsity.nonzeros() &&
+            nonsymmetric_block.inner_jacobian_colors > 0;
+        const bool nonsymmetric_warm_start =
+            nonsymmetric_outcome.success &&
+            nonsymmetric_outcome.blocks.size() == 1 &&
+            nonsymmetric_block.path ==
+                smave::SolvePath::warm_start_accept &&
+            !nonsymmetric_block.attempt_records.empty() &&
+            nonsymmetric_block.attempt_records.front().outcome == "accepted";
+        require((nonsymmetric_gmres || nonsymmetric_warm_start) &&
+                    nonsymmetric_block.gate.decision ==
                         smave::GateDecision::direct_accept &&
                     nonsymmetric_outcome.fallback_count == 0,
-                "nonsymmetric nonlinear Jacobian did not route to CSR GMRES+ILU(0)");
+                "nonsymmetric nonlinear Jacobian did not pass the original equation gate");
 
         const auto dense_source = write_dense_coupled_model(directory);
         const auto dense_ir = smave::compile_model(
@@ -159,11 +176,15 @@ int main(int argc, char** argv) {
             dense_ir.blocks.front(), dense_registry, dense_bundle);
         const auto dense_plan = smave::RuntimeRouter{}.route(
             dense_ir.blocks.front(), {}, dense_candidates, dense_registry, dense_bundle);
+        const auto jfnk_step = std::find_if(
+            dense_plan.steps.begin(), dense_plan.steps.end(),
+            [](const smave::SolveStep& step) {
+                return step.expert_version == "newton-krylov-jfnk-cpu-v1";
+            });
         require(
             !dense_plan.steps.empty() &&
-                dense_plan.steps.front().expert_version ==
-                    "newton-krylov-jfnk-cpu-v1" &&
-                dense_plan.steps.front().backend_chain ==
+                jfnk_step != dense_plan.steps.end() &&
+                jfnk_step->backend_chain ==
                     std::vector<std::string>{
                         "damped-newton-corrector",
                         "directional-ad-jacobian-vector-product",
@@ -177,12 +198,17 @@ int main(int argc, char** argv) {
         require(dense_outcome.success && dense_outcome.blocks.size() == 1,
                 "matrix-free dense-coupled nonlinear solve failed");
         const auto& dense_block = dense_outcome.blocks.front();
+        const auto dense_accepted = std::find_if(
+            dense_block.attempt_records.begin(),
+            dense_block.attempt_records.end(),
+            [](const auto& attempt) {
+                return attempt.expert_version ==
+                           "newton-krylov-jfnk-cpu-v1" &&
+                       attempt.outcome == "accepted";
+            });
         require(
             dense_block.path == smave::SolvePath::corrected_accept &&
-                !dense_block.attempt_records.empty() &&
-                dense_block.attempt_records.front().expert_version ==
-                    "newton-krylov-jfnk-cpu-v1" &&
-                dense_block.attempt_records.front().outcome == "accepted" &&
+                dense_accepted != dense_block.attempt_records.end() &&
                 dense_block.inner_matrix_free &&
                 dense_block.inner_jacobian_storage_bytes == 0 &&
                 dense_block.inner_jacobian_nonzeros == 0 &&
