@@ -2471,7 +2471,11 @@ Preconditioner incomplete_cholesky_zero_preconditioner(
             lower[row].emplace_back(column, value);
         }
         double diagonal_value = system.coefficient(row, row);
-        for (const auto& [column, value] : lower[row]) {
+        for (const auto& __entry : lower[row]) {
+
+            const auto& column = __entry.first;
+
+            const auto& value = __entry.second;
             (void)column;
             diagonal_value -= value * value;
         }
@@ -2480,7 +2484,11 @@ Preconditioner incomplete_cholesky_zero_preconditioner(
     }
     std::vector<std::vector<std::pair<std::size_t, double>>> upper(size);
     for (std::size_t row = 0; row < size; ++row) {
-        for (const auto& [column, value] : lower[row]) {
+        for (const auto& __entry : lower[row]) {
+
+            const auto& column = __entry.first;
+
+            const auto& value = __entry.second;
             upper[column].emplace_back(row, value);
         }
     }
@@ -2493,7 +2501,11 @@ Preconditioner incomplete_cholesky_zero_preconditioner(
         if (residual.size() != size) return false;
         for (std::size_t row = 0; row < size; ++row) {
             double value = residual[row];
-            for (const auto& [column, factor] : lower[row]) {
+            for (const auto& __entry : lower[row]) {
+
+                const auto& column = __entry.first;
+
+                const auto& factor = __entry.second;
                 value -= factor * intermediate[column];
             }
             intermediate[row] = value / diagonal[row];
@@ -2502,7 +2514,11 @@ Preconditioner incomplete_cholesky_zero_preconditioner(
         for (std::size_t reverse = 0; reverse < size; ++reverse) {
             const std::size_t row = size - reverse - 1;
             double value = intermediate[row];
-            for (const auto& [column, factor] : upper[row]) {
+            for (const auto& __entry : upper[row]) {
+
+                const auto& column = __entry.first;
+
+                const auto& factor = __entry.second;
                 value -= factor * result[column];
             }
             result[row] = value / diagonal[row];
@@ -2566,7 +2582,11 @@ Preconditioner incomplete_lu_zero_preconditioner(
         std::vector<double> intermediate(size);
         for (std::size_t row = 0; row < size; ++row) {
             double value = residual[row];
-            for (const auto& [column, factor] : factors[row]) {
+            for (const auto& __entry : factors[row]) {
+
+                const auto& column = __entry.first;
+
+                const auto& factor = __entry.second;
                 if (column >= row) break;
                 value -= factor * intermediate[column];
             }
@@ -2577,7 +2597,11 @@ Preconditioner incomplete_lu_zero_preconditioner(
             const std::size_t row = size - reverse - 1;
             double value = intermediate[row];
             double diagonal{};
-            for (const auto& [column, factor] : factors[row]) {
+            for (const auto& __entry : factors[row]) {
+
+                const auto& column = __entry.first;
+
+                const auto& factor = __entry.second;
                 if (column == row) diagonal = factor;
                 else if (column > row) value -= factor * result[column];
             }
@@ -2642,7 +2666,11 @@ Preconditioner incomplete_lu_threshold_preconditioner(
         }
         SparseRow working = row_values(row);
         double row_scale = 0.0;
-        for (const auto& [column, value] : working) {
+        for (const auto& __entry : working) {
+
+            const auto& column = __entry.first;
+
+            const auto& value = __entry.second;
             (void)column;
             if (!std::isfinite(value)) return {};
             row_scale = std::max(row_scale, std::abs(value));

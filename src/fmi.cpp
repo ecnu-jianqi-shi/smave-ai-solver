@@ -1383,7 +1383,11 @@ void FmiBlackboxIR::write(const std::filesystem::path& path) const {
            << differential_test_allowed << ' ' << equation_level_validation_allowed << ' '
            << direct_expert_allowed << '\n'
            << "DEFAULT_EXPERIMENT " << default_experiment.size();
-    for (const auto& [name, value] : default_experiment) {
+    for (const auto& __entry : default_experiment) {
+
+        const auto& name = __entry.first;
+
+        const auto& value = __entry.second;
         output << ' ' << std::quoted(name) << ' ' << std::quoted(value);
     }
     output << '\n' << "INTERFACES " << interfaces.size() << '\n';
@@ -1391,7 +1395,11 @@ void FmiBlackboxIR::write(const std::filesystem::path& path) const {
         output << "INTERFACE " << std::quoted(interface.kind) << ' '
                << std::quoted(interface.model_identifier) << ' '
                << interface.capabilities.size();
-        for (const auto& [name, value] : interface.capabilities) {
+        for (const auto& __entry : interface.capabilities) {
+
+            const auto& name = __entry.first;
+
+            const auto& value = __entry.second;
             output << ' ' << std::quoted(name) << ' ' << std::quoted(value);
         }
         output << '\n';
@@ -3017,7 +3025,11 @@ SspSimulationResult simulate_ssp(
         throw std::invalid_argument("SSP master requires at least one component connection");
     }
     for (std::size_t index = 0; index < system.components.size(); ++index) {
-        for (const auto& [name, connector] : system.components[index].connectors) {
+        for (const auto& __entry : system.components[index].connectors) {
+
+            const auto& name = __entry.first;
+
+            const auto& connector = __entry.second;
             if (connector.kind == "input" && !driven_inputs.contains({index, name})) {
                 throw std::invalid_argument("SSP input connector is unconnected");
             }
@@ -3096,7 +3108,11 @@ SspSimulationResult simulate_ssp(
             0,
             0,
             0});
-        for (const auto& [name, connector] : system.components[index].connectors) {
+        for (const auto& __entry : system.components[index].connectors) {
+
+            const auto& name = __entry.first;
+
+            const auto& connector = __entry.second;
             sessions.back()->validate_connector(name, connector.kind, connector.unit);
             if (!connector.unit.empty()) {
                 const auto ssp_unit = system.units.find(connector.unit);
@@ -4674,7 +4690,11 @@ FmiSmokeResult smoke_fmi3_model_exchange(
         }
         return extent;
     };
-    for (const auto& [name, value] : inputs) {
+    for (const auto& __entry : inputs) {
+
+        const auto& name = __entry.first;
+
+        const auto& value = __entry.second;
         const auto& variable = scalar_input_variable(
             model, name,
             {"Float32", "Float64", "Int8", "UInt8", "Int16", "UInt16",
@@ -4814,13 +4834,21 @@ FmiSmokeResult smoke_fmi3_model_exchange(
                 name + ": array smoke supports only FMI 3 numeric, Enumeration, or Boolean arrays");
         }
     }
-    for (const auto& [name, value] : string_inputs) {
+    for (const auto& __entry : string_inputs) {
+
+        const auto& name = __entry.first;
+
+        const auto& value = __entry.second;
         const auto& variable = scalar_input_variable(model, name, {"String"}, "3");
         string_input_references.push_back(
             static_cast<Fmi3ValueReference>(variable.value_reference));
         string_input_values.push_back(value.c_str());
     }
-    for (const auto& [name, value] : binary_inputs) {
+    for (const auto& __entry : binary_inputs) {
+
+        const auto& name = __entry.first;
+
+        const auto& value = __entry.second;
         if (value.size() > 16U * 1024U * 1024U) {
             throw std::invalid_argument(name + ": FMI Binary input exceeds 16 MiB");
         }

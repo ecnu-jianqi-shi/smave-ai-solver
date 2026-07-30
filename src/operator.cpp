@@ -89,7 +89,11 @@ DiagonalCorrectionResult diagonal_residual_correction(
     for (const auto& variable : model.variables) {
         result.values.try_emplace(variable.name, variable.start);
     }
-    for (const auto& [name, value] : candidate) {
+    for (const auto& __entry : candidate) {
+
+        const auto& name = __entry.first;
+
+        const auto& value = __entry.second;
         result.values.insert_or_assign(name, value);
     }
     result.gate = runtime.evaluate_gate_fused(block, result.values, true);

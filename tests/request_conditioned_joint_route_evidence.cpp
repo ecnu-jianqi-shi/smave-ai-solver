@@ -569,7 +569,11 @@ smave::RoutingConfig static_routing(
     for (const auto profile : {Profile::low, Profile::middle, Profile::high}) {
         routing.expert_allowlist.insert(expert_version(profile));
     }
-    for (const auto& [action, profile] : profiles) {
+    for (const auto& __entry : profiles) {
+
+        const auto& action = __entry.first;
+
+        const auto& profile = __entry.second;
         routing.calibrations[action.first].budget_options.push_back(
             smave::RouteBudgetCalibration{
                 .work_iterations = action.second,

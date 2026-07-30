@@ -131,7 +131,11 @@ RuntimeConfig RuntimeConfig::read(const std::filesystem::path& path) {
         "telemetry.trace",
         "telemetry.retain_context",
     };
-    for (const auto& [key, _] : values) {
+    for (const auto& __entry : values) {
+
+        const auto& key = __entry.first;
+
+        const auto& _ = __entry.second;
         if (!known.contains(key)) throw std::invalid_argument("unknown configuration field: " + key);
     }
     const auto schema = values.find("schema_version");

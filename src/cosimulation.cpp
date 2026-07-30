@@ -53,7 +53,11 @@ void validate_coupling(
     for (const auto& state : continuous.states) continuous_states.insert(state.name);
     std::unordered_set<std::string> allowed{"tick", "time"};
     allowed.insert(continuous_states.begin(), continuous_states.end());
-    for (const auto& [name, value] : sampled.initial_state) {
+    for (const auto& __entry : sampled.initial_state) {
+
+        const auto& name = __entry.first;
+
+        const auto& value = __entry.second;
         (void)value;
         if (continuous_states.contains(name)) {
             throw std::invalid_argument(

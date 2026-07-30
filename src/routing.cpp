@@ -2064,7 +2064,11 @@ RequestConditionedRoutingModel train_request_conditioned_routing_model(
         for (std::size_t feature = 0; feature < dimensions; ++feature) {
             bool group_invariant = true;
             const auto inspect_groups = [&](const GroupRows& groups) {
-                for (const auto& [group, rows] : groups) {
+                for (const auto& __entry : groups) {
+
+                    const auto& group = __entry.first;
+
+                    const auto& rows = __entry.second;
                     (void)group;
                     double minimum = std::numeric_limits<double>::infinity();
                     double maximum = -std::numeric_limits<double>::infinity();
@@ -2315,8 +2319,11 @@ RuntimeRouter::RuntimeRouter(RoutingConfig config) : config_(config) {
         validate_request_conditioned_model(*config_.request_conditioned_model);
         has_joint_calibration = true;
     }
-    for (const auto& [family, anchor] :
-         config_.request_conditioned_family_anchors) {
+    for (const auto& __entry : config_.request_conditioned_family_anchors) {
+
+        const auto& family = __entry.first;
+
+        const auto& anchor = __entry.second;
         if ((family != "spd" && family != "symmetric-indefinite" &&
              family != "nonsymmetric") ||
             anchor.work_iterations < 0 ||
@@ -2342,8 +2349,11 @@ RuntimeRouter::RuntimeRouter(RoutingConfig config) : config_(config) {
         }
     }
     if (config_.request_conditioned_model.has_value()) {
-        for (const auto& [family, anchor] :
-             config_.request_conditioned_family_anchors) {
+        for (const auto& __entry : config_.request_conditioned_family_anchors) {
+
+            const auto& family = __entry.first;
+
+            const auto& anchor = __entry.second;
             if (anchor.expert_version.empty()) continue;
             const auto expert = config_.request_conditioned_model->actions.find(
                 anchor.expert_version);
