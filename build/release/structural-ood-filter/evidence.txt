@@ -1,0 +1,18 @@
+SMAVE_STRUCTURAL_OOD_FILTER 1
+contract=hard-structural-filter-before-learned-route-permission
+filter_executed_before_runtime_router=1
+embedding_similarity_not_substitute=1
+router_score_not_substitute=1
+cases=5
+eligible_coverage=1
+structural_ood_rejects=4
+false_accepts=0
+false_rejects=0
+dangerous_misroutes=0
+conservative_fallback_rate=0
+negative_results_retained=1
+STRUCTURAL_OOD_REJECT label=structural_incompatibility_wrong_family reason=block_family
+STRUCTURAL_OOD_REJECT label=unverified_topology_linear_vs_nonlinear reason=block_family
+STRUCTURAL_OOD_REJECT label=ood_hardware_unknown reason=hardware_profile
+STRUCTURAL_OOD_REJECT label=ood_tolerance_unverified reason=tolerance_profile
+END

@@ -456,6 +456,11 @@ add_executable(smave_calibrated_correction_router_evidence
 target_link_libraries(smave_calibrated_correction_router_evidence PRIVATE smave_core)
 target_compile_options(smave_calibrated_correction_router_evidence PRIVATE
     -Wall -Wextra -Wpedantic)
+add_executable(smave_structural_ood_filter_evidence
+    tests/structural_ood_filter_evidence.cpp)
+target_link_libraries(smave_structural_ood_filter_evidence PRIVATE smave_core)
+target_compile_options(smave_structural_ood_filter_evidence PRIVATE
+    -Wall -Wextra -Wpedantic)
 add_executable(smave_joint_route_budget_evidence
     tests/joint_route_budget_evidence.cpp)
 target_link_libraries(smave_joint_route_budget_evidence PRIVATE smave_core)
@@ -1842,6 +1847,18 @@ add_custom_target(reproduce-router-shift-matrix
         -DEVIDENCE=${SMAVE_ROUTER_SHIFT_MATRIX_DIR}/evidence.txt
         -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_router_shift_matrix.cmake
     DEPENDS smave
+    USES_TERMINAL
+)
+
+set(SMAVE_STRUCTURAL_OOD_FILTER_DIR
+    "${CMAKE_CURRENT_BINARY_DIR}/structural-ood-filter")
+add_custom_target(reproduce-structural-ood-filter
+    COMMAND $<TARGET_FILE:smave_structural_ood_filter_evidence>
+        "${SMAVE_STRUCTURAL_OOD_FILTER_DIR}"
+    COMMAND ${CMAKE_COMMAND}
+        -DEVIDENCE=${SMAVE_STRUCTURAL_OOD_FILTER_DIR}/evidence.txt
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/verify_structural_ood_filter.cmake
+    DEPENDS smave_structural_ood_filter_evidence
     USES_TERMINAL
 )
 
