@@ -12,17 +12,15 @@ jobs:
       - name: deps
         run: sudo apt-get update && sudo apt-get install -y zlib1g-dev
       - name: configure
-        run: cmake -S . -B build/release -DCMAKE_BUILD_TYPE=Release -DSMAVE_CORE_REPRO_BUNDLE=ON
-      - name: build probe
-        run: cmake --build build/release --target smave_c_api_dae_service_probe -j2
-      - name: run probe with full output
+        run: cmake --preset release
+      - name: build all solve_service_reuse deps
+        run: cmake --build build/release --target smave smave_c_api_linear_service_probe smave_c_api_nonlinear_service_probe smave_c_api_complementarity_service_probe smave_c_api_block_graph_service_probe smave_c_api_ode_service_probe smave_c_api_dae_service_probe smave_c_api_index_two_dae_service_probe smave_c_api_cancellation_service_probe smave_c_api_external_linear_fallback_probe smave_c_api_external_stepper_fallback_probe smave_c_api_error_stack_probe smave_c_api_event_service_probe smave_c_api_dae_event_service_probe smave_c_api_hybrid_service_probe smave_c_api_hybrid_dae_service_probe -j2
+      - name: run ctest for solve_service_reuse with verbose
         run: |
-          set +e
-          ./build/release/smave_c_api_dae_service_probe > probe-out.txt 2> probe-err.txt
+          cd build/release
+          ctest -R smave_solve_service_reuse --output-on-failure --verbose
           echo "EXIT=$?"
-          echo "===STDOUT==="
-          cat probe-out.txt
-          echo "===STDERR==="
-          cat probe-err.txt
-          echo "===pow check==="
-          python3 -c "import math; s=0.38554328942953187; p=math.pow(1.0/1.1,10.0); print('sol=',s,'pow=',p,'diff=',abs(s-p))"
+      - name: also run probe standalone
+        run: |
+          ./build/release/smave_c_api_dae_service_probe
+          echo "standalone_exit=$?"
