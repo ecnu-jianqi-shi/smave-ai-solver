@@ -46,13 +46,13 @@ endforeach()
 foreach(workload operator-linear-100 cubic-coupled-nonlinear)
     foreach(field policy_requests high_risk_full_verifications
                   periodic_full_verifications certificate_reuses low_cost_rejects)
-        string(REGEX MATCH "${workload}\.${field}=([0-9]+)" match "${report}")
+        string(REGEX MATCH "${workload}[.]${field}=([0-9]+)" match "${report}")
         if(NOT match OR NOT CMAKE_MATCH_1 GREATER 0)
             message(FATAL_ERROR "risk-adaptive gate missing positive ${workload}.${field}")
         endif()
     endforeach()
     string(REGEX MATCH
-        "${workload}\.paired_speedup_ci95_lower=([0-9.eE+-]+)" lower_match "${report}")
+        "${workload}[.]paired_speedup_ci95_lower=([0-9.eE+-]+)" lower_match "${report}")
     if(NOT lower_match)
         message(FATAL_ERROR "risk-adaptive gate missing speedup interval: ${workload}")
     endif()
@@ -63,21 +63,21 @@ endforeach()
 foreach(workload full-solve-linear full-solve-nonlinear full-solve-scaled-nonlinear)
     foreach(field policy_requests strict_verifications
                   periodic_strict_verifications certificate_reuses)
-        string(REGEX MATCH "${workload}\.${field}=([0-9]+)" match "${report}")
+        string(REGEX MATCH "${workload}[.]${field}=([0-9]+)" match "${report}")
         if(NOT match OR NOT CMAKE_MATCH_1 GREATER 0)
             message(FATAL_ERROR "full-solve gate evidence missing positive ${workload}.${field}")
         endif()
     endforeach()
     foreach(metric gate_speedup_ci95_lower)
         string(REGEX MATCH
-            "${workload}\.${metric}=([0-9.eE+-]+)" lower_match "${report}")
+            "${workload}[.]${metric}=([0-9.eE+-]+)" lower_match "${report}")
         if(NOT lower_match OR NOT CMAKE_MATCH_1 GREATER 1.0)
             message(FATAL_ERROR
                 "full-solve gate evidence lacks positive ${workload}.${metric}")
         endif()
     endforeach()
     string(REGEX MATCH
-        "${workload}\.total_speedup_ci95_lower=([0-9.eE+-]+)"
+        "${workload}[.]total_speedup_ci95_lower=([0-9.eE+-]+)"
         total_lower_match "${report}")
     if(NOT total_lower_match)
         message(FATAL_ERROR
@@ -85,13 +85,13 @@ foreach(workload full-solve-linear full-solve-nonlinear full-solve-scaled-nonlin
     endif()
 endforeach()
 string(REGEX MATCH
-    "full-solve-linear\.total_speedup_ci95_lower=([0-9.eE+-]+)"
+    "full-solve-linear[.]total_speedup_ci95_lower=([0-9.eE+-]+)"
     linear_total_lower "${report}")
 if(NOT linear_total_lower OR NOT CMAKE_MATCH_1 GREATER 1.0)
     message(FATAL_ERROR "linear full-solve total speedup is not significant")
 endif()
 string(REGEX MATCH
-    "full-solve-scaled-nonlinear\.total_speedup_ci95_lower=([0-9.eE+-]+)"
+    "full-solve-scaled-nonlinear[.]total_speedup_ci95_lower=([0-9.eE+-]+)"
     scaled_nonlinear_total_lower "${report}")
 if(NOT scaled_nonlinear_total_lower OR NOT CMAKE_MATCH_1 GREATER 1.0)
     message(FATAL_ERROR "scaled nonlinear full-solve total speedup is not significant")

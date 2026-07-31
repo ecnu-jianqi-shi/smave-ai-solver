@@ -107,15 +107,15 @@ int main(void) {
         smave_solver_create(problem, &solver_options, &solver) == SMAVE_STATUS_OK &&
         smave_cancel_token_create(library, &token) == SMAVE_STATUS_OK &&
         smave_cancel_token_create(foreign_library, &foreign_token) == SMAVE_STATUS_OK;
-    if (!created) return 1;
+    if (!created) { fprintf(stderr, "DIAG cancellation: setup failed at line 110\n"); return 1; }
 
     smave_result* foreign_result = NULL;
     if (smave_solver_solve_cancellable(solver, foreign_token, &foreign_result) !=
-            SMAVE_STATUS_INVALID_ARGUMENT || foreign_result != NULL) return 1;
+            SMAVE_STATUS_INVALID_ARGUMENT || foreign_result != NULL) { fprintf(stderr, "DIAG cancellation: foreign token rejection failed at line 114\n"); return 1; }
 
     context.solver = solver;
     context.token = token;
-    if (pthread_create(&thread, NULL, run_solve, &context) != 0) return 1;
+    if (pthread_create(&thread, NULL, run_solve, &context) != 0) { fprintf(stderr, "DIAG cancellation: pthread_create failed at line 118\n"); return 1; }
     while (atomic_load(&callback_count) < 4) {
         const struct timespec pause = {0, 100000};
         nanosleep(&pause, NULL);
@@ -124,7 +124,7 @@ int main(void) {
         smave_cancel_token_reset(token) == SMAVE_STATUS_INVALID_STATE &&
         smave_cancel_token_destroy(token) == SMAVE_STATUS_INVALID_STATE;
     if (smave_cancel_token_request(token) != SMAVE_STATUS_OK ||
-        pthread_join(thread, NULL) != 0) return 1;
+        pthread_join(thread, NULL) != 0) { fprintf(stderr, "DIAG cancellation: cancel request/join failed at line 127\n"); return 1; }
 
     smave_result_info info = {
         sizeof(info), SMAVE_ABI_VERSION, 0, 0, 0, 0, 0, NULL, NULL};
@@ -144,14 +144,14 @@ int main(void) {
         smave_result_copy_solution(context.result, &output, 1, &required) == SMAVE_STATUS_OK &&
         required == 1 && output == graph_info.final_time;
     smave_result_destroy(context.result);
-    if (!cancelled || !active_lifecycle_rejected) return 1;
+    if (!cancelled || !active_lifecycle_rejected) { fprintf(stderr, "DIAG cancellation: cancelled=%d active_lifecycle_rejected=%d at line 147\n", cancelled, active_lifecycle_rejected); return 1; }
 
     smave_result* pre_cancelled_result = NULL;
     const int sticky =
         smave_solver_solve_cancellable(solver, token, &pre_cancelled_result) ==
             SMAVE_STATUS_CANCELLED && pre_cancelled_result != NULL;
     smave_result_destroy(pre_cancelled_result);
-    if (!sticky || smave_cancel_token_reset(token) != SMAVE_STATUS_OK) return 1;
+    if (!sticky || smave_cancel_token_reset(token) != SMAVE_STATUS_OK) { fprintf(stderr, "DIAG cancellation: sticky=%d at line 154\n", sticky); return 1; }
 
     smave_result* deadline_result = NULL;
     smave_block_graph_result_info deadline_info = {0};
@@ -171,7 +171,7 @@ int main(void) {
         smave_result_copy_solution(deadline_result, &output, 1, &required) == SMAVE_STATUS_OK &&
         required == 1 && output == deadline_info.final_time;
     smave_result_destroy(deadline_result);
-    if (!deadline_expired) return 1;
+    if (!deadline_expired) { fprintf(stderr, "DIAG cancellation: deadline_expired=0 at line 174 (status=%d)\n", (int)0); return 1; }
 
     const size_t callbacks_before_reuse = atomic_load(&callback_count);
     smave_result* completed_result = NULL;
@@ -186,7 +186,7 @@ int main(void) {
         completed_info.ticks == 21 && completed_info.final_time == 0.02 &&
         atomic_load(&callback_count) >= callbacks_before_reuse + 21;
     smave_result_destroy(completed_result);
-    if (!reused) return 1;
+    if (!reused) { fprintf(stderr, "DIAG cancellation: reused=0 at line 189\n"); return 1; }
 
     if (smave_cancel_token_destroy(token) != SMAVE_STATUS_OK ||
         smave_solver_destroy(solver) != SMAVE_STATUS_OK ||
@@ -194,7 +194,7 @@ int main(void) {
         smave_cancel_token_destroy(foreign_token) != SMAVE_STATUS_OK ||
         smave_library_destroy(foreign_library) != SMAVE_STATUS_OK ||
         smave_library_destroy(library) != SMAVE_STATUS_OK ||
-        atomic_load(&allocations) != atomic_load(&deallocations)) return 1;
+        atomic_load(&allocations) != atomic_load(&deallocations)) { fprintf(stderr, "DIAG cancellation: alloc=%zu dealloc=%zu at line 197\n", atomic_load(&allocations), atomic_load(&deallocations)); return 1; }
 
     printf("SMAVE_C_API_CANCELLATION_SERVICE 1\n"
            "CANCELLATION_CAPABILITY 1\n"
