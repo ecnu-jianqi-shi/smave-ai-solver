@@ -915,8 +915,12 @@ find_library(SMAVE_BENCH_SUPERLU_LIBRARY superlu
     PATHS "${SMAVE_BENCH_SUPERLU_ROOT}/lib")
 find_library(SMAVE_BENCH_SUPERLU_LIBRARY superlu)
 if(NOT SMAVE_BENCH_SUPERLU_INCLUDE AND SMAVE_BENCH_SUPERLU_INCLUDE_SUPERLU)
+    # find_path(superlu/slu_ddefs.h) returns the directory containing the
+    # superlu/ subdir (e.g. /usr/include). The source uses #include <slu_ddefs.h>
+    # without the superlu/ prefix, so the include path must point inside it.
     get_filename_component(SMAVE_BENCH_SUPERLU_INCLUDE
         "${SMAVE_BENCH_SUPERLU_INCLUDE_SUPERLU}" DIRECTORY)
+    set(SMAVE_BENCH_SUPERLU_INCLUDE "${SMAVE_BENCH_SUPERLU_INCLUDE}/superlu")
 endif()
 add_executable(smave_sparse_case_benchmark tests/sparse_case_benchmark.cpp)
 target_link_libraries(smave_sparse_case_benchmark PRIVATE smave_core)
