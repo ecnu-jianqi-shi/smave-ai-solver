@@ -904,10 +904,19 @@ target_compile_options(smave_large_dae_event_evidence PRIVATE -Wall -Wextra -Wpe
 
 set(SMAVE_BENCH_SUPERLU_ROOT "$ENV{HOME}/.local/smave-bench/superlu-7.0.1-accelerate"
     CACHE PATH "Optional standalone SuperLU installation for benchmark comparison")
+# Search both the standalone install and system paths. On Debian/Ubuntu the
+# libsuperlu-dev package places headers under /usr/include/superlu/ and the
+# source uses #include <slu_ddefs.h>, so accept the superlu/ subdirectory and
+# add it directly to the include path.
 find_path(SMAVE_BENCH_SUPERLU_INCLUDE slu_ddefs.h
     PATHS "${SMAVE_BENCH_SUPERLU_ROOT}/include" NO_DEFAULT_PATH)
+find_path(SMAVE_BENCH_SUPERLU_INCLUDE_SUPERLU superlu/slu_ddefs.h)
 find_library(SMAVE_BENCH_SUPERLU_LIBRARY superlu
     PATHS "${SMAVE_BENCH_SUPERLU_ROOT}/lib" NO_DEFAULT_PATH)
+if(NOT SMAVE_BENCH_SUPERLU_INCLUDE AND SMAVE_BENCH_SUPERLU_INCLUDE_SUPERLU)
+    get_filename_component(SMAVE_BENCH_SUPERLU_INCLUDE
+        "${SMAVE_BENCH_SUPERLU_INCLUDE_SUPERLU}" DIRECTORY)
+endif()
 add_executable(smave_sparse_case_benchmark tests/sparse_case_benchmark.cpp)
 target_link_libraries(smave_sparse_case_benchmark PRIVATE smave_core)
 target_compile_options(smave_sparse_case_benchmark PRIVATE -Wall -Wextra -Wpedantic)

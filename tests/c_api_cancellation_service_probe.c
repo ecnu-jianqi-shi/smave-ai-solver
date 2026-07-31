@@ -160,18 +160,33 @@ int main(void) {
     diagnostic = SMAVE_DIAGNOSTIC_SUCCESS;
     output = -2.0;
     required = 0;
-    const int deadline_expired =
-        smave_solver_solve_with_timeout(solver, token, 5000000, &deadline_result) ==
-            SMAVE_STATUS_DEADLINE_EXCEEDED && deadline_result != NULL &&
-        smave_result_get_info(deadline_result, &info) == SMAVE_STATUS_OK && !info.success &&
-        smave_result_get_diagnostic_code(deadline_result, &diagnostic) == SMAVE_STATUS_OK &&
-        diagnostic == SMAVE_DIAGNOSTIC_DEADLINE_EXCEEDED &&
-        smave_result_get_block_graph_info(deadline_result, &deadline_info) == SMAVE_STATUS_OK &&
-        deadline_info.ticks < 21 &&
-        smave_result_copy_solution(deadline_result, &output, 1, &required) == SMAVE_STATUS_OK &&
-        required == 1 && output == deadline_info.final_time;
+    const smave_status deadline_status =
+        smave_solver_solve_with_timeout(solver, token, 5000000, &deadline_result);
+    int deadline_expired = 0;
+    if (deadline_status != SMAVE_STATUS_DEADLINE_EXCEEDED) {
+        fprintf(stderr, "DIAG cancellation: deadline status=%d (expected %d), result=%p\n",
+                (int)deadline_status, (int)SMAVE_STATUS_DEADLINE_EXCEEDED, (void*)deadline_result);
+    } else if (deadline_result == NULL) {
+        fprintf(stderr, "DIAG cancellation: deadline result null\n");
+    } else if (smave_result_get_info(deadline_result, &info) != SMAVE_STATUS_OK || info.success) {
+        fprintf(stderr, "DIAG cancellation: deadline info ok=%d success=%d\n",
+                smave_result_get_info(deadline_result, &info) == SMAVE_STATUS_OK, info.success);
+    } else if (smave_result_get_diagnostic_code(deadline_result, &diagnostic) != SMAVE_STATUS_OK ||
+               diagnostic != SMAVE_DIAGNOSTIC_DEADLINE_EXCEEDED) {
+        fprintf(stderr, "DIAG cancellation: deadline diag=%d\n", (int)diagnostic);
+    } else if (smave_result_get_block_graph_info(deadline_result, &deadline_info) != SMAVE_STATUS_OK) {
+        fprintf(stderr, "DIAG cancellation: deadline graph info failed\n");
+    } else if (deadline_info.ticks >= 21) {
+        fprintf(stderr, "DIAG cancellation: deadline ticks=%zu (expected <21)\n", deadline_info.ticks);
+    } else if (smave_result_copy_solution(deadline_result, &output, 1, &required) != SMAVE_STATUS_OK ||
+               required != 1 || output != deadline_info.final_time) {
+        fprintf(stderr, "DIAG cancellation: deadline copy req=%zu output=%.17g final_time=%.17g\n",
+                required, output, deadline_info.final_time);
+    } else {
+        deadline_expired = 1;
+    }
     smave_result_destroy(deadline_result);
-    if (!deadline_expired) { fprintf(stderr, "DIAG cancellation: deadline_expired=0 at line 174 (status=%d)\n", (int)0); return 1; }
+    if (!deadline_expired) { fprintf(stderr, "DIAG cancellation: deadline_expired=0 at line 174\n"); return 1; }
 
     const size_t callbacks_before_reuse = atomic_load(&callback_count);
     smave_result* completed_result = NULL;
