@@ -20,6 +20,8 @@ benchmark/dae/reaction-diffusion-index1/ReactionDiffusionDae_n317/
 benchmark/modelica-derived/electrical-circuit/RcChain_n100000/
 
 # Large benchmark datasets (regenerate on demand; not needed for core repro / native-external workflow)
+# smave_sparse_suite_unit validates the full local 66-matrix inventory and is excluded
+# from CI (which has no 5GB dataset); run it locally after acquiring benchmark/suitesparse.
 benchmark/suitesparse/
 benchmark/pdebench/
 benchmark/cops/
