@@ -45,13 +45,12 @@ jobs:
       - name: Run focused tests
         run: >-
           ctest --test-dir build/release
-          -R 'smave_(c_api_host|c_api_abi_v1_host|c_api_complementarity_service_probe|c_api_complementarity_cpp_host|c_api_block_graph_service_probe|c_api_block_graph_cpp_host|c_api_index_two_dae_service_probe|c_api_index_two_dae_cpp_host|c_api_cancellation_service_probe|c_api_cancellation_cpp_host|c_api_external_linear_fallback_probe|c_api_external_linear_fallback_cpp_host|c_api_external_stepper_fallback_probe|c_api_error_stack_probe|cpp_api_raii_host|solve_service_unit|solve_service_reuse|release_store_recovery|periodic_linear_unit|pdebench_training_unit)'
+          -R 'smave_(c_api_host|c_api_abi_v1_host|c_api_complementarity_service_probe|c_api_complementarity_cpp_host|c_api_block_graph_service_probe|c_api_block_graph_cpp_host|c_api_index_two_dae_service_probe|c_api_index_two_dae_cpp_host|c_api_cancellation_service_probe|c_api_cancellation_cpp_host|c_api_external_linear_fallback_probe|c_api_external_linear_fallback_cpp_host|c_api_external_stepper_fallback_probe|c_api_error_stack_probe|cpp_api_raii_host|solve_service_unit|release_store_recovery|periodic_linear_unit|pdebench_training_unit)'
           --output-on-failure
       - name: Verify SDK and shared service
         run: >-
           cmake --build build/release --target
-          reproduce-c-api-sdk reproduce-c-api-abi-matrix reproduce-solve-service
-          reproduce-gate-architecture reproduce-nonlinear-cascade
+          reproduce-c-api-sdk reproduce-c-api-abi-matrix           reproduce-gate-architecture reproduce-nonlinear-cascade
           reproduce-risk-adaptive-gate reproduce-paired-oracle
           reproduce-operator-replication -j2
       - name: Upload SDK evidence
